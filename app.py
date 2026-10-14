@@ -69,3 +69,12 @@ if st.button("Keresés"):
                     st.write(f"- **[{v.jaratszam}]** Indulás: `{v.indulas}`")
             else:
                 st.write("Nincs vonatjárat.")
+                # Oldalsáv vagy főoldal alja az űrlaphoz
+st.sidebar.markdown("---")
+st.sidebar.subheader("✈️ Új járatot javasolnál?")
+st.sidebar.write("Ha hiányzó járatot találtál, küldd el nekünk!")
+
+# Itt add meg a Google Űrlapoddal kapott linket:
+urlap_link = "https://forms.gle/kCtmR8P4gRP7acGG7"
+
+st.sidebar.link_button("Járat beküldése (Űrlap)", urlap_link)
