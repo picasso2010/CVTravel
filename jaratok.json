@@ -1,0 +1,352 @@
+[
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11261",
+        "indulas": "08:42"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11263",
+        "indulas": "15:42"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11265",
+        "indulas": "17:44"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11267",
+        "indulas": "22:19"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11262",
+        "indulas": "05:56"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11264",
+        "indulas": "12:55"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11266",
+        "indulas": "18:46"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11268",
+        "indulas": "21:31"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11261",
+        "indulas": "07:38"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11263",
+        "indulas": "14:37"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11265",
+        "indulas": "16:33"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Regio #11267",
+        "indulas": "20:50"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Codreanu",
+        "indulas": "07:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Balint-transz",
+        "indulas": "09:30"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Csavargó",
+        "indulas": "15:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Csavargó",
+        "indulas": "12:45"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Balint-transz",
+        "indulas": "16:00"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #1162",
+        "indulas": "05:56"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11264",
+        "indulas": "12:55"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11266",
+        "indulas": "18:46"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11268",
+        "indulas": "21:31"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "08:30"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "13:15"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "16:15"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Codreanu",
+        "indulas": "06:50"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Codreanu",
+        "indulas": "10:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Codreanu",
+        "indulas": "12:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kézdi",
+        "jaratszam": "Codreanu",
+        "indulas": "15:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "6:50"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "08:45"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "10:45"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "12:45"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "13:15"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "15:45"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Codreanu",
+        "indulas": "18:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "06:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "07:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "08:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "10:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "12:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "14:30"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Codreanu",
+        "indulas": "17:00"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11262",
+        "indulas": "06:31"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11264",
+        "indulas": "13:30"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11266",
+        "indulas": "19:20"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Kovászna",
+        "hova": "Szentgyörgy",
+        "jaratszam": "Regio #11268",
+        "indulas": "22:06"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11261",
+        "indulas": "07:38"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11263",
+        "indulas": "14:37"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11265",
+        "indulas": "16:33"
+    },
+    {
+        "tipus": "Vonat",
+        "honnan": "Szentgyörgy",
+        "hova": "Kovászna",
+        "jaratszam": "Regio #11267",
+        "indulas": "20:50"
+    }
+]
