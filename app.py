@@ -18,6 +18,7 @@ szotar = {
         "vonatok": "🚆 Vonatjáratok",
         "nincs_busz": "Nincs buszjárat.",
         "nincs_vonat": "Nincs vonatjárat.",
+        "indulas_szoveg": "Indulás",
         "urlap_cim": "✈️ Új járatot javasolnál?",
         "urlap_szoveg": "Ha hiányzó járatot találtál, küldd el nekünk!",
         "urlap_gomb": "Járat beküldése (Űrlap)",
@@ -35,6 +36,7 @@ szotar = {
         "vonatok": "🚆 Curse de tren",
         "nincs_busz": "Nu există autobuze.",
         "nincs_vonat": "Nu există trenuri.",
+        "indulas_szoveg": "Plecare",
         "urlap_cim": "✈️ Dorești să propuni o cursă?",
         "urlap_szoveg": "Dacă ai găsit o cursă lipsă, trimite-ne-o!",
         "urlap_gomb": "Trimite cursa (Formular)",
@@ -52,6 +54,7 @@ szotar = {
         "vonatok": "🚆 Train Rides",
         "nincs_busz": "No buses available.",
         "nincs_vonat": "No trains available.",
+        "indulas_szoveg": "Departure",
         "urlap_cim": "✈️ Propose a new ride?",
         "urlap_szoveg": "If you found a missing ride, send it to us!",
         "urlap_gomb": "Submit Ride (Form)",
@@ -79,8 +82,8 @@ varos_nevek = {
 
 # Nyelvválasztó a sáv tetején
 valasztott_nyelv = st.sidebar.selectbox("🌐 Nyelv / Limba / Language", ["Magyar", "Română", "English"])
-t = szotar[valasztott_nyelv]  # Aktuális szövegek
-aktualis_varosok = varos_nevek[valasztott_nyelv]  # Aktuális városnevek szótára
+t = szotar[valasztott_nyelv]  
+aktualis_varosok = varos_nevek[valasztott_nyelv]  
 megjelenitendo_varosok = list(aktualis_varosok.keys())
 
 @dataclass
@@ -116,11 +119,9 @@ rendszer = UtazasiRendszer()
 
 st.header(t["kereses_fejlec"])
 
-# Kiválasztás a felületen (a felhasználó a választott nyelv szerinti nevet látja)
 valasztott_honnan_nev = st.selectbox(t["honnan"], megjelenitendo_varosok, key="keres_honnan")
 valasztott_hova_nev = st.selectbox(t["hova"], megjelenitendo_varosok, key="keres_hova")
 
-# Visszaalakítjuk a belső kulcsra a szűréshez
 honnan = aktualis_varosok[valasztott_honnan_nev]
 hova = aktualis_varosok[valasztott_hova_nev]
 
@@ -143,14 +144,14 @@ if st.button(t["gomb"]):
             st.markdown(f"### {t['buszok']}")
             if buszok:
                 for b in buszok:
-                    st.write(f"- **[{b.jaratszam}]** Indulás / Plecare / Departure: `{b.indulas}`")
+                    st.write(f"- **[{b.jaratszam}]** {t['indulas_szoveg']}: `{b.indulas}`")
             else:
                 st.write(t["nincs_busz"])
                 
             st.markdown(f"### {t['vonatok']}")
             if vonatok:
                 for v in vonatok:
-                    st.write(f"- **[{v.jaratszam}]** Indulás / Plecare / Departure: `{v.indulas}`")
+                    st.write(f"- **[{v.jaratszam}]** {t['indulas_szoveg']}: `{v.indulas}`")
             else:
                 st.write(t["nincs_vonat"])
 
