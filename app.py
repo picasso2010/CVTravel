@@ -3,6 +3,65 @@ from dataclasses import dataclass
 from typing import List
 import streamlit as st
 
+# Nyelvi szótárak
+szotar = {
+    "Magyar": {
+        "cim": "🚆 Kovászna - Kézdi - Szentgyörgy Utazási Rendszer",
+        "kereses_fejlec": "🔍 Járatok keresése",
+        "honnan": "Indulási város:",
+        "hova": "Célváros:",
+        "gomb": "Keresés",
+        "hiba_ugyanaz": "Az indulási és érkezési város nem lehet ugyanaz!",
+        "talalat": "Találatok",
+        "nincs_jarat": "Nincs elérhető járat ezen az útvonalon.",
+        "buszok": "🚌 Buszjáratok",
+        "vonatok": "🚆 Vonatjáratok",
+        "nincs_busz": "Nincs buszjárat.",
+        "nincs_vonat": "Nincs vonatjárat.",
+        "urlap_cim": "✈️ Új járatot javasolnál?",
+        "urlap_szoveg": "Ha hiányzó járatot találtál, küldd el nekünk!",
+        "urlap_gomb": "Járat beküldése (Űrlap)",
+    },
+    "Română": {
+        "cim": "🚆 Sistem de Transport Covasna - Târgu Secuiesc - Sfântu Gheorghe",
+        "kereses_fejlec": "🔍 Căutare curse",
+        "honnan": "Oraș plecare:",
+        "hova": "Oraș destinație:",
+        "gomb": "Caută",
+        "hiba_ugyanaz": "Orașul de plecare și cel de destinație nu pot fi aceleași!",
+        "talalat": "Rezultate",
+        "nincs_jarat": "Nu există curse disponibile pe această rută.",
+        "buszok": "🚌 Curse de autobuz",
+        "vonatok": "🚆 Curse de tren",
+        "nincs_busz": "Nu există autobuze.",
+        "nincs_vonat": "Nu există trenuri.",
+        "urlap_cim": "✈️ Dorești să propuni o cursă?",
+        "urlap_szoveg": "Dacă ai găsit o cursă lipsă, trimite-ne-o!",
+        "urlap_gomb": "Trimite cursa (Formular)",
+    },
+    "English": {
+        "cim": "🚆 Covasna - Târgu Secuiesc - Sfântu Gheorghe Travel System",
+        "kereses_fejlec": "🔍 Search Rides",
+        "honnan": "Departure city:",
+        "hova": "Destination city:",
+        "gomb": "Search",
+        "hiba_ugyanaz": "Departure and destination cities cannot be the same!",
+        "talalat": "Results",
+        "nincs_jarat": "No available rides on this route.",
+        "buszok": "🚌 Bus Rides",
+        "vonatok": "🚆 Train Rides",
+        "nincs_busz": "No buses available.",
+        "nincs_vonat": "No trains available.",
+        "urlap_cim": "✈️ Propose a new ride?",
+        "urlap_szoveg": "If you found a missing ride, send it to us!",
+        "urlap_gomb": "Submit Ride (Form)",
+    }
+}
+
+# Nyelvválasztó a sáv tetején
+valasztott_nyelv = st.sidebar.selectbox("🌐 Nyelv / Limba / Language", ["Magyar", "Română", "English"])
+t = szotar[valasztott_nyelv]  # Aktuális fordítások lekérése
+
 @dataclass
 class Jarat:
     tipus: str
@@ -31,50 +90,49 @@ class UtazasiRendszer:
         except FileNotFoundError:
             self.jaratok = []
 
-st.title("🚆 Kovászna - Kézdi - Szentgyörgy Utazási Rendszer")
+st.title(t["cim"])
 
 rendszer = UtazasiRendszer()
 
-st.header("🔍 Járatok keresése")
+st.header(t["kereses_fejlec"])
 
-honnan = st.selectbox("Indulási város:", rendszer.varosok, key="keres_honnan")
-hova = st.selectbox("Célváros:", rendszer.varosok, key="keres_hova")
+honnan = st.selectbox(t["honnan"], rendszer.varosok, key="keres_honnan")
+hova = st.selectbox(t["hova"], rendszer.varosok, key="keres_hova")
 
-if st.button("Keresés"):
+if st.button(t["gomb"]):
     if honnan == hova:
-        st.warning("Az indulási és érkezési város nem lehet ugyanaz!")
+        st.warning(t["hiba_ugyanaz"])
     else:
         talalatok = [
             j for j in rendszer.jaratok if j.honnan == honnan and j.hova == hova
         ]
         
-        st.subheader(f"Találatok: {honnan} ➔ {hova}")
+        st.subheader(f"{t['talalat']}: {honnan} ➔ {hova}")
         
         if not talalatok:
-            st.info("Nincs elérhető járat ezen az útvonalon.")
+            st.info(t["nincs_jarat"])
         else:
             buszok = [j for j in talalatok if j.tipus == "Busz"]
             vonatok = [j for j in talalatok if j.tipus == "Vonat"]
             
-            st.markdown("### 🚌 Buszjáratok")
+            st.markdown(f"### {t['buszok']}")
             if buszok:
                 for b in buszok:
-                    st.write(f"- **[{b.jaratszam}]** Indulás: `{b.indulas}`")
+                    st.write(f"- **[{b.jaratszam}]** Indulás / Plecare / Departure: `{b.indulas}`")
             else:
-                st.write("Nincs buszjárat.")
+                st.write(t["nincs_busz"])
                 
-            st.markdown("### 🚆 Vonatjáratok")
+            st.markdown(f"### {t['vonatok']}")
             if vonatok:
                 for v in vonatok:
-                    st.write(f"- **[{v.jaratszam}]** Indulás: `{v.indulas}`")
+                    st.write(f"- **[{v.jaratszam}]** Indulás / Plecare / Departure: `{v.indulas}`")
             else:
-                st.write("Nincs vonatjárat.")
-                # Oldalsáv vagy főoldal alja az űrlaphoz
+                st.write(t["nincs_vonat"])
+
+# Oldalsáv az űrlapecskénkhez (Ne felejtsd el beilleszteni a saját Google Forms linkedet!)
 st.sidebar.markdown("---")
-st.sidebar.subheader("✈️ Új járatot javasolnál?")
-st.sidebar.write("Ha hiányzó járatot találtál, küldd el nekünk!")
+st.sidebar.subheader(t["urlap_cim"])
+st.sidebar.write(t["urlap_szoveg"])
 
-# Itt add meg a Google Űrlapoddal kapott linket:
 urlap_link = "https://forms.gle/kCtmR8P4gRP7acGG7"
-
-st.sidebar.link_button("Járat beküldése (Űrlap)", urlap_link)
+st.sidebar.link_button(t["urlap_gomb"], urlap_link)
