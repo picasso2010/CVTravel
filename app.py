@@ -58,9 +58,30 @@ szotar = {
     }
 }
 
+# Városnevek nyelvenként (Megjelenítendő név -> JSON-ban lévő belső kulcs)
+varos_nevek = {
+    "Magyar": {
+        "Kovászna": "Kovászna",
+        "Kézdi": "Kézdi",
+        "Szentgyörgy": "Szentgyörgy"
+    },
+    "Română": {
+        "Covasna": "Kovászna",
+        "Târgu Secuiesc": "Kézdi",
+        "Sfântu Gheorghe": "Szentgyörgy"
+    },
+    "English": {
+        "Covasna": "Kovászna",
+        "Târgu Secuiesc": "Kézdi",
+        "Sfântu Gheorghe": "Szentgyörgy"
+    }
+}
+
 # Nyelvválasztó a sáv tetején
 valasztott_nyelv = st.sidebar.selectbox("🌐 Nyelv / Limba / Language", ["Magyar", "Română", "English"])
-t = szotar[valasztott_nyelv]  # Aktuális fordítások lekérése
+t = szotar[valasztott_nyelv]  # Aktuális szövegek
+aktualis_varosok = varos_nevek[valasztott_nyelv]  # Aktuális városnevek szótára
+megjelenitendo_varosok = list(aktualis_varosok.keys())
 
 @dataclass
 class Jarat:
@@ -78,7 +99,6 @@ class UtazasiRendszer:
     FAJL_NEV = "jaratok.json"
 
     def __init__(self):
-        self.varosok = ["Kovászna", "Kézdi", "Szentgyörgy"]
         self.jaratok: List[Jarat] = []
         self.adatok_betoltese()
 
@@ -96,8 +116,13 @@ rendszer = UtazasiRendszer()
 
 st.header(t["kereses_fejlec"])
 
-honnan = st.selectbox(t["honnan"], rendszer.varosok, key="keres_honnan")
-hova = st.selectbox(t["hova"], rendszer.varosok, key="keres_hova")
+# Kiválasztás a felületen (a felhasználó a választott nyelv szerinti nevet látja)
+valasztott_honnan_nev = st.selectbox(t["honnan"], megjelenitendo_varosok, key="keres_honnan")
+valasztott_hova_nev = st.selectbox(t["hova"], megjelenitendo_varosok, key="keres_hova")
+
+# Visszaalakítjuk a belső kulcsra a szűréshez
+honnan = aktualis_varosok[valasztott_honnan_nev]
+hova = aktualis_varosok[valasztott_hova_nev]
 
 if st.button(t["gomb"]):
     if honnan == hova:
@@ -107,7 +132,7 @@ if st.button(t["gomb"]):
             j for j in rendszer.jaratok if j.honnan == honnan and j.hova == hova
         ]
         
-        st.subheader(f"{t['talalat']}: {honnan} ➔ {hova}")
+        st.subheader(f"{t['talalat']}: {valasztott_honnan_nev} ➔ {valasztott_hova_nev}")
         
         if not talalatok:
             st.info(t["nincs_jarat"])
@@ -129,7 +154,7 @@ if st.button(t["gomb"]):
             else:
                 st.write(t["nincs_vonat"])
 
-# Oldalsáv az űrlapecskénkhez (Ne felejtsd el beilleszteni a saját Google Forms linkedet!)
+# Oldalsáv az űrlapecskénkhez
 st.sidebar.markdown("---")
 st.sidebar.subheader(t["urlap_cim"])
 st.sidebar.write(t["urlap_szoveg"])
