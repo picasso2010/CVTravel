@@ -3,97 +3,123 @@ from dataclasses import dataclass
 from typing import List
 import streamlit as st
 
-# Page Configuration - Retro Cím és Ikon
+# Page Configuration
 st.set_page_config(
-    page_title="Covasna Travel DOS v1.0",
-    page_icon="🖥️",
+    page_title="Covasna Travel | Cloud",
+    page_icon="☁️",
     layout="centered",
     initial_sidebar_state="expanded"
 )
 
-# --- MODERN RETRO / MS-DOS STÍLUS (CUSTOM CSS) ---
+# --- FELHŐ-KÖNYED / HALVÁNYKÉK & FEHÉR DESIGN (CUSTOM CSS) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
 
-    /* Globális hátterek és betűtípus */
+    /* Globális hátterek: tiszta, világos felhő hatás */
     html, body, [data-testid="stAppViewContainer"] {
-        background-color: #0b0f19 !important;
-        color: #00ff66 !important;
-        font-family: 'Fira Code', 'Courier New', monospace !important;
+        background: linear-gradient(135deg, #f4f8fb 0%, #e9f2f9 100%) !important;
+        color: #2c3e50 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* Oldalsáv stílus */
+    /* Oldalsáv stílus - lágy pasztellkék hangulat */
     [data-testid="stSidebar"] {
-        background-color: #05080f !important;
-        border-right: 2px solid #00ff66 !important;
+        background-color: #ffffff !important;
+        border-right: 1px solid #d0e1ed !important;
+        box-shadow: 2px 0 10px rgba(180, 200, 220, 0.1);
     }
 
-    /* Fejlécek Retro zöld/fehér neon fénye */
-    h1, h2, h3, p, label, div, span {
-        color: #00ff66 !important;
-        font-family: 'Fira Code', 'Courier New', monospace !important;
+    /* Fejlécek és szövegek */
+    h1, h2, h3, h4, p, label, div, span {
+        color: #2b3a4a !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     h1 {
-        text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
-        border-bottom: 2px dashed #00ff66;
-        padding-bottom: 10px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+        color: #1a365d !important;
     }
 
-    /* Kártyák / Dobozok MS-DOS kerettel */
-    .retro-card {
-        border: 2px solid #00ff66;
-        background-color: #011409;
-        padding: 16px;
+    /* Vékony, halványkék vonalak (Divider) */
+    hr {
+        border: none;
+        height: 1px;
+        background-color: #d2e3f3 !important;
+        margin: 25px 0;
+    }
+
+    /* Levegős, finom keretes kártyák (Felhő stílus) */
+    .cloud-card {
+        border: 1px solid #cce0f0;
+        background-color: #ffffff;
+        padding: 18px;
         margin-bottom: 15px;
-        border-radius: 4px;
-        box-shadow: 4px 4px 0px 0px #008837;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(170, 200, 230, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .retro-card-header {
-        font-weight: bold;
-        border-bottom: 1px solid #00ff66;
-        padding-bottom: 5px;
+    .cloud-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(170, 200, 230, 0.25);
+    }
+
+    .cloud-card-header {
+        font-weight: 600;
+        color: #1d4ed8;
+        border-bottom: 1px solid #e2edf7;
+        padding-bottom: 8px;
         margin-bottom: 10px;
+        font-size: 1.05rem;
     }
 
-    /* Gombok – Retro Terminal Stílus */
+    /* Gombok – Köned, elegáns kék design */
     .stButton > button, div[data-testid="stLinkButton"] > a {
-        background-color: #00ff66 !important;
-        color: #05080f !important;
-        font-weight: bold !important;
-        font-family: 'Fira Code', monospace !important;
-        border: 2px solid #00ff66 !important;
-        border-radius: 2px !important;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        border: 1px solid #93c5fd !important;
+        border-radius: 10px !important;
         width: 100% !important;
+        padding: 10px 20px !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
         transition: all 0.2s ease-in-out !important;
-        box-shadow: 3px 3px 0px 0px #005522 !important;
     }
 
     .stButton > button:hover, div[data-testid="stLinkButton"] > a:hover {
-        background-color: #05080f !important;
-        color: #00ff66 !important;
-        box-shadow: 1px 1px 0px 0px #00ff66 !important;
-        transform: translate(2px, 2px);
+        background: linear-gradient(135deg, #2563eb 100%, #1d4ed8 0%) !important;
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35) !important;
+        transform: translateY(-1px);
     }
 
-    /* Bekérő mezők (Selectboxok) Mobilbarát és Retro dizájnnal */
+    /* Input mezők (Selectboxok) vékony kék kerettel */
     div[data-baseweb="select"] > div {
-        background-color: #05080f !important;
-        border: 1px solid #00ff66 !important;
-        color: #00ff66 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        color: #1e293b !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    
+    div[data-baseweb="select"] > div:hover {
+        border-color: #3b82f6 !important;
     }
 
     div[data-baseweb="popover"] {
-        background-color: #05080f !important;
+        background-color: #ffffff !important;
+        border-radius: 10px !important;
+        border: 1px solid #cbd5e1 !important;
     }
 
-    /* Info és Warning üzenetek retro színezése */
+    /* Info és Warning üzenetek lágy pasztell háttérrel */
     .stAlert {
-        background-color: #0b190f !important;
-        border: 1px solid #00ff66 !important;
-        color: #00ff66 !important;
+        background-color: #f0f7ff !important;
+        border: 1px solid #bae6fd !important;
+        color: #0369a1 !important;
+        border-radius: 10px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -102,58 +128,61 @@ st.markdown("""
 # --- NYELVI SZÓTÁRAK ---
 szotar = {
     "Magyar": {
-        "cim": "📟 SYSTEM://KOVASZNA-TRAVEL-DOS v1.0",
-        "kereses_fejlec": "► UTAVALASZTO TERMINAL",
-        "honnan": "[INDIRALAS / ORIGIN]:",
-        "hova": "[ERKEZES / DESTINATION]:",
-        "gomb": "[ KERESES / SEARCH ]",
-        "hiba_ugyanaz": "HIBA: Az indulási és érkezési város megegyezik!",
-        "talalat": "TALALATOK",
-        "nincs_jarat": ">>> Nincs elérhető járat ezen az útvonalon.",
-        "buszok": "🚌 AUTOBUSZ JARATOK",
-        "vonatok": "🚆 VONAT JARATOK",
-        "nincs_busz": "Nincs elérhető buszjárat.",
-        "nincs_vonat": "Nincs elérhető vonatjárat.",
-        "indulas_szoveg": "INDULAS",
-        "urlap_cim": "► UJ JARAT BEKULDÉSE",
-        "urlap_szoveg": "Hiányzó járatot találtál? Küldd el a rendszerbe!",
-        "urlap_gomb": "ŰRLAP MEGNYITÁSA",
+        "cim": "☁️ Kovászna — Kézdi — Szentgyörgy",
+        "alcim": "Légies, gyors utazási és járatkereső rendszer",
+        "kereses_fejlec": "🔍 Útvonal keresése",
+        "honnan": "Honnan indulnál?",
+        "hova": "Hova utaznál?",
+        "gomb": "Járatok keresése",
+        "hiba_ugyanaz": "Az indulási és az érkezési város nem lehet azonos!",
+        "talalat": "Találatok",
+        "nincs_jarat": "Nem találtunk járatot ezen az útvonalon.",
+        "buszok": "🚌 Buszjáratok",
+        "vonatok": "🚆 Vonatjáratok",
+        "nincs_busz": "Nincs elérhető busz.",
+        "nincs_vonat": "Nincs elérhető vonat.",
+        "indulas_szoveg": "Indulás",
+        "urlap_cim": "✈️ Új járat javaslása",
+        "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
+        "urlap_gomb": "Beküldési űrlap",
     },
     "Română": {
-        "cim": "📟 SYSTEM://COVASNA-TRAVEL-DOS v1.0",
-        "kereses_fejlec": "► TERMINAL CAUTARE",
-        "honnan": "[PLECARE / ORIGIN]:",
-        "hova": "[SOSIRE / DESTINATION]:",
-        "gomb": "[ CAUTA / SEARCH ]",
-        "hiba_ugyanaz": "EROARE: Orașul de plecare și destinația sunt identice!",
-        "talalat": "REZULTATE",
-        "nincs_jarat": ">>> Nu există curse disponibile pe această rută.",
-        "buszok": "🚌 CURSE AUTOBUZ",
-        "vonatok": "🚆 CURSE TREN",
-        "nincs_busz": "Nu există autobuze disponibile.",
-        "nincs_vonat": "Nu există trenuri disponibile.",
-        "indulas_szoveg": "PLECARE",
-        "urlap_cim": "► PROPUNE O CURSA",
-        "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o în sistem!",
-        "urlap_gomb": "DESCHIDE FORMULARUL",
+        "cim": "☁️ Covasna — Târgu Secuiesc — Sfântu Gheorghe",
+        "alcim": "Sistem de căutare curse simplu și aerisit",
+        "kereses_fejlec": "🔍 Căutare rute",
+        "honnan": "Oraș plecare:",
+        "hova": "Oraș destinație:",
+        "gomb": "Caută curse",
+        "hiba_ugyanaz": "Orașul de plecare și cel de destinație nu pot fi identice!",
+        "talalat": "Rezultate",
+        "nincs_jarat": "Nu am găsit curse pe această rută.",
+        "buszok": "🚌 Curse de autobuz",
+        "vonatok": "🚆 Curse de tren",
+        "nincs_busz": "Nu există autobuze.",
+        "nincs_vonat": "Nu există trenuri.",
+        "indulas_szoveg": "Plecare",
+        "urlap_cim": "✈️ Propune o cursă",
+        "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o!",
+        "urlap_gomb": "Formular trimitere",
     },
     "English": {
-        "cim": "📟 SYSTEM://COVASNA-TRAVEL-DOS v1.0",
-        "kereses_fejlec": "► ROUTE SEARCH TERMINAL",
-        "honnan": "[DEPARTURE]:",
-        "hova": "[DESTINATION]:",
-        "gomb": "[ SEARCH RIDES ]",
-        "hiba_ugyanaz": "ERROR: Departure and destination cannot be the same!",
-        "talalat": "RESULTS",
-        "nincs_jarat": ">>> No available rides on this route.",
-        "buszok": "🚌 BUS SERVICES",
-        "vonatok": "🚆 TRAIN SERVICES",
-        "nincs_busz": "No bus services found.",
-        "nincs_vonat": "No train services found.",
-        "indulas_szoveg": "DEPARTURE",
-        "urlap_cim": "► SUBMIT NEW RIDE",
-        "urlap_szoveg": "Found a missing ride? Send it to our system!",
-        "urlap_gomb": "OPEN FORM",
+        "cim": "☁️ Covasna — Târgu Secuiesc — Sfântu Gheorghe",
+        "alcim": "Smooth & lightweight travel guide system",
+        "kereses_fejlec": "🔍 Search Routes",
+        "honnan": "Departure city:",
+        "hova": "Destination city:",
+        "gomb": "Search Rides",
+        "hiba_ugyanaz": "Departure and destination cities cannot be the same!",
+        "talalat": "Results",
+        "nincs_jarat": "No available rides on this route.",
+        "buszok": "🚌 Bus Services",
+        "vonatok": "🚆 Train Services",
+        "nincs_busz": "No buses available.",
+        "nincs_vonat": "No trains available.",
+        "indulas_szoveg": "Departure",
+        "urlap_cim": "✈️ Propose a ride",
+        "urlap_szoveg": "Found a missing ride? Send it to us!",
+        "urlap_gomb": "Submit Form",
     }
 }
 
@@ -175,9 +204,9 @@ varos_nevek = {
     }
 }
 
-# Oldalsáv setup
-st.sidebar.markdown("### 🌐 LANGUAGE / NYELV")
-valasztott_nyelv = st.sidebar.selectbox("Válassz nyelvet / Select language", ["Magyar", "Română", "English"], label_visibility="collapsed")
+# Oldalsáv nyelvválasztó
+st.sidebar.markdown("### 🌐 Nyelv / Limba / Language")
+valasztott_nyelv = st.sidebar.selectbox("Nyelv", ["Magyar", "Română", "English"], label_visibility="collapsed")
 t = szotar[valasztott_nyelv]  
 aktualis_varosok = varos_nevek[valasztott_nyelv]  
 megjelenitendo_varosok = list(aktualis_varosok.keys())
@@ -209,16 +238,17 @@ class UtazasiRendszer:
         except FileNotFoundError:
             self.jaratok = []
 
-# --- FŐOLDAL TARTALMA ---
+# --- FŐOLDAL ---
 
 st.title(t["cim"])
-st.caption("SYS_STATUS: ONLINE | TERMINAL ID: 08-COV")
+st.caption(t["alcim"])
+st.markdown("---")
 
 rendszer = UtazasiRendszer()
 
-st.markdown(f"### {t['kereses_fejlec']}")
+st.subheader(t["kereses_fejlec"])
 
-# Két oszlop a városválasztáshoz (Desktopon egymás mellett, Mobilon egymás alatt tör fel)
+# Oszlopos elrendezés mobilos/asztali reszponzivitással
 col1, col2 = st.columns(2)
 
 with col1:
@@ -236,7 +266,7 @@ kereses_inditva = st.button(t["gomb"])
 if kereses_inditva:
     st.markdown("---")
     if honnan == hova:
-        st.error(t["hiba_ugyanaz"])
+        st.warning(t["hiba_ugyanaz"])
     else:
         talalatok = [
             j for j in rendszer.jaratok if j.honnan == honnan and j.hova == hova
@@ -250,7 +280,6 @@ if kereses_inditva:
             buszok = [j for j in talalatok if j.tipus == "Busz"]
             vonatok = [j for j in talalatok if j.tipus == "Vonat"]
             
-            # Mobilbarát retro kártyás megjelenítés
             col_b, col_v = st.columns(2)
             
             with col_b:
@@ -258,8 +287,8 @@ if kereses_inditva:
                 if buszok:
                     for b in buszok:
                         st.markdown(f"""
-                        <div class="retro-card">
-                            <div class="retro-card-header">🚌 {b.jaratszam}</div>
+                        <div class="cloud-card">
+                            <div class="cloud-card-header">🚌 Járat: {b.jaratszam}</div>
                             <div><b>{t['indulas_szoveg']}:</b> <code>{b.indulas}</code></div>
                         </div>
                         """, unsafe_allow_html=True)
@@ -271,8 +300,8 @@ if kereses_inditva:
                 if vonatok:
                     for v in vonatok:
                         st.markdown(f"""
-                        <div class="retro-card">
-                            <div class="retro-card-header">🚆 {v.jaratszam}</div>
+                        <div class="cloud-card">
+                            <div class="cloud-card-header">🚆 Járat: {v.jaratszam}</div>
                             <div><b>{t['indulas_szoveg']}:</b> <code>{v.indulas}</code></div>
                         </div>
                         """, unsafe_allow_html=True)
