@@ -237,7 +237,8 @@ st.markdown("---")
 rendszer = UtazasiRendszer()
 
 # Fülek használata a szétválasztáshoz
-ful_1, ful_2 = st.tabs([t["ful_helyi"], t["ful_tavolsagi"]])
+#ful_1, ful_2 = st.tabs([t["ful_helyi"], t["ful_tavolsagi"]])
+ful_1, ful_2 = st.tabs([ t["ful_tavolsagi"], t["ful_helyi"]])
 
 # --- 1. FÜL: HELYI JÁRATOK ---
 with ful_1:
