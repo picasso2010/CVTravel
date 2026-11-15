@@ -108,7 +108,7 @@ szotar = {
         "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
         "urlap_gomb": "Beküldési űrlap",
         "szentgyorgy_cim": "Sepsiszentgyörgy Helyi Menetrend",
-        "szentgyorgy_alcim": "Multitrans valós idejű szűrés",
+        "szentgyorgy_alcim": "Multitrans gépelős kereső",
         "frissites_gomb": "🔄 Adatok frissítése GitHubról",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
@@ -116,6 +116,8 @@ szotar = {
         "celallomas": "Célállomás",
         "nincs_ma_jarat": "A megadott útvonalra mára már nincs közvetlen járat.",
         "talalatok_szama": "Találatok száma",
+        "tipp_honnan": "Kezdd el beírni a megállót...",
+        "tipp_hova": "Kezdd el beírni a célállomást...",
     },
     "Română": {
         "cim": "Utazás",
@@ -140,7 +142,7 @@ szotar = {
         "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o!",
         "urlap_gomb": "Formular trimitere",
         "szentgyorgy_cim": "Orar Local Sfântu Gheorghe",
-        "szentgyorgy_alcim": "Orar Multitrans și filtrare în timp real",
+        "szentgyorgy_alcim": "Orar Multitrans căutare din tastatură",
         "frissites_gomb": "🔄 Actualizare date de pe GitHub",
         "frissites_sikeres": "Orarul a fost actualizat cu succes!",
         "frissites_hiba": "Eroare la actualizare.",
@@ -148,6 +150,8 @@ szotar = {
         "celallomas": "Destinație",
         "nincs_ma_jarat": "Nu mai există curse directe pe această rută astăzi.",
         "talalatok_szama": "Număr de rezultate",
+        "tipp_honnan": "Începe să tastezi stația...",
+        "tipp_hova": "Începe să tastezi destinația...",
     },
     "English": {
         "cim": "Utazás",
@@ -172,7 +176,7 @@ szotar = {
         "urlap_szoveg": "Found a missing ride? Send it to us!",
         "urlap_gomb": "Submit Form",
         "szentgyorgy_cim": "Sfântu Gheorghe Local Schedule",
-        "szentgyorgy_alcim": "Multitrans schedule and live filtering",
+        "szentgyorgy_alcim": "Multitrans live typing search",
         "frissites_gomb": "🔄 Update Data from GitHub",
         "frissites_sikeres": "Schedule successfully updated!",
         "frissites_hiba": "Error updating data.",
@@ -180,6 +184,8 @@ szotar = {
         "celallomas": "Destination",
         "nincs_ma_jarat": "No more direct rides on this route today.",
         "talalatok_szama": "Number of results",
+        "tipp_honnan": "Start typing station...",
+        "tipp_hova": "Start typing destination...",
     }
 }
 
@@ -377,7 +383,7 @@ with ful_2:
                     else:
                         st.write(t["nincs_vonat"])
 
-# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (test5.py funkciók) ---
+# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (Gépelős / Keresős interaktív logika mint a test5.py-ben) ---
 with ful_3:
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
@@ -393,20 +399,55 @@ with ful_3:
 
     multitrans_adatok = adatok_betoltese_multitrans()
     
-    # Megállók és célállomások kinyerése
-    stations = sorted(list(set(s["hu"] for s in multitrans_adatok if "hu" in s)))
-    destinations = sorted(list(set(line["dest"] for s in multitrans_adatok for line in s.get("lines", []))))
+    # Teljes állomás és célállomás lista
+    all_stations = sorted(list(set(s["hu"] for s in multitrans_adatok if "hu" in s)))
+    all_destinations = sorted(list(set(line["dest"] for s in multitrans_adatok for line in s.get("lines", []))))
 
     col5, col6 = st.columns(2)
+    
     with col5:
-        szentgyorgy_honnan = st.selectbox(t["honnan"], stations if stations else [""], key="szentgyorgy_honnan")
+        st.markdown(f"**{t['honnan']}**")
+        input_from_text = st.text_input("honnan_input", placeholder=t["tipp_honnan"], label_visibility="collapsed")
+        
+        # Gépelés alatti interaktív szűrés (mint a test5.py-ben)
+        selected_from = ""
+        if input_from_text.strip():
+            matches_from = [stn for stn in all_stations if input_from_text.strip().lower() in stn.lower()][:4]
+            if matches_from and input_from_text.strip().lower() not in [m.lower() for m in matches_from]:
+                st.markdown("<small style='color: #38bdf8;'>Találatok (kattints vagy írd be pontosan):</small>", unsafe_allow_html=True)
+                for m in matches_from:
+                    if st.button(f"📍 {m}", key=f"btn_from_{m}"):
+                        selected_from = m
+        # Ha pontosan beírta vagy kiválasztotta
+        if input_from_text.strip() in all_stations:
+            selected_from = input_from_text.strip()
+        elif not selected_from and len(all_stations) > 0:
+            # Alapértelmezésként az első találatot vagy a szöveget veszi
+            selected_from = input_from_text.strip()
+
     with col6:
-        szentgyorgy_hova = st.selectbox(t["hova"], destinations if destinations else [""], key="szentgyorgy_hova")
+        st.markdown(f"**{t['hova']}**")
+        input_to_text = st.text_input("hova_input", placeholder=t["tipp_hova"], label_visibility="collapsed")
+        
+        selected_to = ""
+        if input_to_text.strip():
+            matches_to = [dst for dst in all_destinations if input_to_text.strip().lower() in dst.lower()][:4]
+            if matches_to and input_to_text.strip().lower() not in [m.lower() for m in matches_to]:
+                st.markdown("<small style='color: #38bdf8;'>Találatok:</small>", unsafe_allow_html=True)
+                for m in matches_to:
+                    if st.button(f"🎯 {m}", key=f"btn_to_{m}"):
+                        selected_to = m
+        if input_to_text.strip() in all_destinations:
+            selected_to = input_to_text.strip()
+        elif not selected_to:
+            selected_to = input_to_text.strip()
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(t["gomb"], key="gomb_szentgyorgy"):
         st.markdown("---")
-        if szentgyorgy_honnan == szentgyorgy_hova:
+        if not input_from_text.strip() or not input_to_text.strip():
+            st.warning("Kérlek add meg a kiinduló és célállomást is!")
+        elif input_from_text.strip().lower() == input_to_text.strip().lower():
             st.warning(t["hiba_ugyanaz"])
         else:
             now = datetime.now()
@@ -415,11 +456,12 @@ with ful_3:
 
             talalatok = []
             for station in multitrans_adatok:
-                if station.get("hu", "").lower() == szentgyorgy_honnan.lower():
+                stn_name = station.get("hu", "")
+                if input_from_text.strip().lower() in stn_name.lower():
                     for line in station.get("lines", []):
-                        if szentgyorgy_hova.lower() in line.get("dest", "").lower():
+                        dest_name = line.get("dest", "")
+                        if input_to_text.strip().lower() in dest_name.lower():
                             vonal_szam = str(line.get("num", ""))
-                            cel_allomas = str(line.get("dest", ""))
                             
                             for orare in line.get("orare", []):
                                 title = orare.get("title", "").lower()
@@ -430,16 +472,16 @@ with ful_3:
 
                                 for row in orare.get("rows", []):
                                     ora = row.get("h")
-                                    for perc in row.get("m"):
+                                    for perc in row.eszt if hasattr(row, 'get') else row.get("m"): # biztonságos m lekérés
                                         jarat_idopont = f"{ora}:{perc}"
                                         if jarat_idopont > current_time_str:
                                             talalatok.append({
                                                 "vonal": vonal_szam,
-                                                "cel": cel_allomas,
+                                                "cel": dest_name,
                                                 "indulas": jarat_idopont
                                             })
 
-            st.markdown(f"### {t['talalat']}: `{szentgyorgy_honnan}` ➔ `{szentgyorgy_hova}`")
+            st.markdown(f"### {t['talalat']}: `{input_from_text}` ➔ `{input_to_text}`")
             
             if not talalatok:
                 st.info(t["nincs_ma_jarat"])
