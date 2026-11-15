@@ -108,7 +108,7 @@ szotar = {
         "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
         "urlap_gomb": "Beküldési űrlap",
         "szentgyorgy_cim": "Sepsiszentgyörgy Helyi Menetrend",
-        "szentgyorgy_alcim": "Multitrans gépelős kereső",
+        "szentgyorgy_alcim": "Multitrans okos kereső",
         "frissites_gomb": "🔄 Adatok frissítése GitHubról",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
@@ -116,8 +116,8 @@ szotar = {
         "celallomas": "Célállomás",
         "nincs_ma_jarat": "A megadott útvonalra mára már nincs közvetlen járat.",
         "talalatok_szama": "Találatok száma",
-        "tipp_honnan": "Kezdd el beírni a megállót...",
-        "tipp_hova": "Kezdd el beírni a célállomást...",
+        "szuro_honnan": "Szűrés / Keresés megállóra:",
+        "szuro_hova": "Szűrés / Keresés célállomásra:",
     },
     "Română": {
         "cim": "Utazás",
@@ -142,7 +142,7 @@ szotar = {
         "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o!",
         "urlap_gomb": "Formular trimitere",
         "szentgyorgy_cim": "Orar Local Sfântu Gheorghe",
-        "szentgyorgy_alcim": "Orar Multitrans căutare din tastatură",
+        "szentgyorgy_alcim": "Orar Multitrans căutare inteligentă",
         "frissites_gomb": "🔄 Actualizare date de pe GitHub",
         "frissites_sikeres": "Orarul a fost actualizat cu succes!",
         "frissites_hiba": "Eroare la actualizare.",
@@ -150,8 +150,8 @@ szotar = {
         "celallomas": "Destinație",
         "nincs_ma_jarat": "Nu mai există curse directe pe această rută astăzi.",
         "talalatok_szama": "Număr de rezultate",
-        "tipp_honnan": "Începe să tastezi stația...",
-        "tipp_hova": "Începe să tastezi destinația...",
+        "szuro_honnan": "Filtrare stație plecare:",
+        "szuro_hova": "Filtrare destinație:",
     },
     "English": {
         "cim": "Utazás",
@@ -176,7 +176,7 @@ szotar = {
         "urlap_szoveg": "Found a missing ride? Send it to us!",
         "urlap_gomb": "Submit Form",
         "szentgyorgy_cim": "Sfântu Gheorghe Local Schedule",
-        "szentgyorgy_alcim": "Multitrans live typing search",
+        "szentgyorgy_alcim": "Multitrans smart search",
         "frissites_gomb": "🔄 Update Data from GitHub",
         "frissites_sikeres": "Schedule successfully updated!",
         "frissites_hiba": "Error updating data.",
@@ -184,8 +184,8 @@ szotar = {
         "celallomas": "Destination",
         "nincs_ma_jarat": "No more direct rides on this route today.",
         "talalatok_szama": "Number of results",
-        "tipp_honnan": "Start typing station...",
-        "tipp_hova": "Start typing destination...",
+        "szuro_honnan": "Filter departure station:",
+        "szuro_hova": "Filter destination:",
     }
 }
 
@@ -383,7 +383,7 @@ with ful_2:
                     else:
                         st.write(t["nincs_vonat"])
 
-# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS ---
+# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (Okos, mobilosbarát legördülős kereső) ---
 with ful_3:
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
@@ -405,32 +405,23 @@ with ful_3:
     
     with col5:
         st.markdown(f"**{t['honnan']}**")
-        input_from_text = st.text_input("honnan_input", placeholder=t["tipp_honnan"], label_visibility="collapsed")
+        # Opcionális szűrőmező, amivel mobilon is könnyen szűkíthető a lista
+        szuro_from = st.text_input(t["szuro_honnan"], key="szuro_from_input", placeholder="Pl. Központ...")
+        szurt_allomasok = [stn for stn in all_stations if szuro_from.strip().lower() in stn.lower()] if szuro_from.strip() else all_stations
         
-        if input_from_text.strip():
-            matches_from = [stn for stn in all_stations if input_from_text.strip().lower() in stn.lower()][:4]
-            if matches_from and input_from_text.strip().lower() not in [m.lower() for m in matches_from]:
-                st.markdown("<small style='color: #38bdf8;'>Találatok:</small>", unsafe_allow_html=True)
-                for m in matches_from:
-                    st.markdown(f"• `{m}`")
+        szentgyorgy_honnan = st.selectbox("Valaszd ki a megallot", szurt_allomasok if szurt_allomasok else all_stations, key="select_honnan_st", label_visibility="collapsed")
 
     with col6:
         st.markdown(f"**{t['hova']}**")
-        input_to_text = st.text_input("hova_input", placeholder=t["tipp_hova"], label_visibility="collapsed")
+        szuro_to = st.text_input(t["szuro_hova"], key="szuro_to_input", placeholder="Pl. Állomás...")
+        szurt_celok = [dst for dst in all_destinations if szuro_to.strip().lower() in dst.lower()] if szuro_to.strip() else all_destinations
         
-        if input_to_text.strip():
-            matches_to = [dst for dst in all_destinations if input_to_text.strip().lower() in dst.lower()][:4]
-            if matches_to and input_to_text.strip().lower() not in [m.lower() for m in matches_to]:
-                st.markdown("<small style='color: #38bdf8;'>Találatok:</small>", unsafe_allow_html=True)
-                for m in matches_to:
-                    st.markdown(f"• `{m}`")
+        szentgyorgy_hova = st.selectbox("Valaszd ki a celallomast", szurt_celok if szurt_celok else all_destinations, key="select_hova_st", label_visibility="collapsed")
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(t["gomb"], key="gomb_szentgyorgy"):
         st.markdown("---")
-        if not input_from_text.strip() or not input_to_text.strip():
-            st.warning("Kérlek add meg a kiinduló és célállomást is!")
-        elif input_from_text.strip().lower() == input_to_text.strip().lower():
+        if szentgyorgy_honnan == szentgyorgy_hova:
             st.warning(t["hiba_ugyanaz"])
         else:
             now = datetime.now()
@@ -440,10 +431,10 @@ with ful_3:
             talalatok = []
             for station in multitrans_adatok:
                 stn_name = station.get("hu", "")
-                if input_from_text.strip().lower() in stn_name.lower():
+                if stn_name.lower() == szentgyorgy_honnan.lower():
                     for line in station.get("lines", []):
                         dest_name = line.get("dest", "")
-                        if input_to_text.strip().lower() in dest_name.lower():
+                        if szentgyorgy_hova.lower() in dest_name.lower():
                             vonal_szam = str(line.get("num", ""))
                             
                             for orare in line.get("orare", []):
@@ -455,7 +446,6 @@ with ful_3:
 
                                 for row in orare.get("rows", []):
                                     ora = row.get("h")
-                                    # JAVÍTOTT SOR: row.get("m") helyes lekérése
                                     percek = row.get("m", []) if hasattr(row, 'get') else []
                                     for perc in percek:
                                         jarat_idopont = f"{ora}:{perc}"
@@ -466,7 +456,7 @@ with ful_3:
                                                 "indulas": jarat_idopont
                                             })
 
-            st.markdown(f"### {t['talalat']}: `{input_from_text}` ➔ `{input_to_text}`")
+            st.markdown(f"### {t['talalat']}: `{szentgyorgy_honnan}` ➔ `{szentgyorgy_hova}`")
             
             if not talalatok:
                 st.info(t["nincs_ma_jarat"])
