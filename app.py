@@ -269,7 +269,7 @@ class UtazasiRendszer:
                     megjegyzes=megj
                 ))
 
-# Multitrans JSON kezelés (test5.py logika)
+# Multitrans JSON kezelés
 JSON_URL = "https://raw.githubusercontent.com/picasso2010/CVTravel/main/multitrans_tiszta.json"
 JSON_FILENAME = "multitrans_tiszta.json"
 
@@ -383,12 +383,11 @@ with ful_2:
                     else:
                         st.write(t["nincs_vonat"])
 
-# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (Gépelős / Keresős interaktív logika mint a test5.py-ben) ---
+# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS ---
 with ful_3:
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
     
-    # Adatok frissítése gomb
     if st.button(t["frissites_gomb"], key="btn_frissites_szentgyorgy"):
         try:
             cache_buster_url = f"{JSON_URL}?t={os.urandom(4).hex()}"
@@ -399,7 +398,6 @@ with ful_3:
 
     multitrans_adatok = adatok_betoltese_multitrans()
     
-    # Teljes állomás és célállomás lista
     all_stations = sorted(list(set(s["hu"] for s in multitrans_adatok if "hu" in s)))
     all_destinations = sorted(list(set(line["dest"] for s in multitrans_adatok for line in s.get("lines", []))))
 
@@ -409,38 +407,23 @@ with ful_3:
         st.markdown(f"**{t['honnan']}**")
         input_from_text = st.text_input("honnan_input", placeholder=t["tipp_honnan"], label_visibility="collapsed")
         
-        # Gépelés alatti interaktív szűrés (mint a test5.py-ben)
-        selected_from = ""
         if input_from_text.strip():
             matches_from = [stn for stn in all_stations if input_from_text.strip().lower() in stn.lower()][:4]
             if matches_from and input_from_text.strip().lower() not in [m.lower() for m in matches_from]:
-                st.markdown("<small style='color: #38bdf8;'>Találatok (kattints vagy írd be pontosan):</small>", unsafe_allow_html=True)
+                st.markdown("<small style='color: #38bdf8;'>Találatok:</small>", unsafe_allow_html=True)
                 for m in matches_from:
-                    if st.button(f"📍 {m}", key=f"btn_from_{m}"):
-                        selected_from = m
-        # Ha pontosan beírta vagy kiválasztotta
-        if input_from_text.strip() in all_stations:
-            selected_from = input_from_text.strip()
-        elif not selected_from and len(all_stations) > 0:
-            # Alapértelmezésként az első találatot vagy a szöveget veszi
-            selected_from = input_from_text.strip()
+                    st.markdown(f"• `{m}`")
 
     with col6:
         st.markdown(f"**{t['hova']}**")
         input_to_text = st.text_input("hova_input", placeholder=t["tipp_hova"], label_visibility="collapsed")
         
-        selected_to = ""
         if input_to_text.strip():
             matches_to = [dst for dst in all_destinations if input_to_text.strip().lower() in dst.lower()][:4]
             if matches_to and input_to_text.strip().lower() not in [m.lower() for m in matches_to]:
                 st.markdown("<small style='color: #38bdf8;'>Találatok:</small>", unsafe_allow_html=True)
                 for m in matches_to:
-                    if st.button(f"🎯 {m}", key=f"btn_to_{m}"):
-                        selected_to = m
-        if input_to_text.strip() in all_destinations:
-            selected_to = input_to_text.strip()
-        elif not selected_to:
-            selected_to = input_to_text.strip()
+                    st.markdown(f"• `{m}`")
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(t["gomb"], key="gomb_szentgyorgy"):
@@ -472,7 +455,9 @@ with ful_3:
 
                                 for row in orare.get("rows", []):
                                     ora = row.get("h")
-                                    for perc in row.eszt if hasattr(row, 'get') else row.get("m"): # biztonságos m lekérés
+                                    # JAVÍTOTT SOR: row.get("m") helyes lekérése
+                                    percek = row.get("m", []) if hasattr(row, 'get') else []
+                                    for perc in percek:
                                         jarat_idopont = f"{ora}:{perc}"
                                         if jarat_idopont > current_time_str:
                                             talalatok.append({
