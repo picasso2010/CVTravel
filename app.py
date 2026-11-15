@@ -189,7 +189,17 @@ szotar = {
     }
 }
 
-# --- LOGÓ BEILLESZTÉSE AZ OLDALSÁVBA ---
+# Távolsági / városon kívüli helyszínek definiálása ITT történik, még mielőtt az oldalsávban hivatkoznánk rájuk
+tavolsagi_helyszinek = {
+    "Magyar": {"Kovászna": "Kovászna", "Kézdivásárhely": "Kézdi", "Sepsiszentgyörgy": "Szentgyörgy"},
+    "Română": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"},
+    "English": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"}
+}
+
+# Helyi járatok megállói (Kovászna)
+helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
+
+# --- LOGÓ ÉS NYELV VÁLASZTÁS AZ OLDALSÁVBAN ---
 if os.path.exists("Logo.jpeg"):
     st.sidebar.image("Logo.jpeg", use_container_width=True)
 
@@ -198,9 +208,6 @@ valasztott_nyelv = st.sidebar.selectbox("Nyelv", ["Magyar", "Română", "English
 t = szotar[valasztott_nyelv]  
 aktualis_tavolsagi_varosok = tavolsagi_helyszinek[valasztott_nyelv]
 megjelenitendo_tavolsagi = list(aktualis_tavolsagi_varosok.keys())
-
-# Helyi járatok megállói (Kovászna)
-helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
 
 @dataclass
 class Jarat:
