@@ -189,21 +189,18 @@ szotar = {
     }
 }
 
-# Helyi járatok megállói (Kovászna)
-helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
-
-# Távolsági / városon kívüli helyszínek
-tavolsagi_helyszinek = {
-    "Magyar": {"Kovászna": "Kovászna", "Kézdivásárhely": "Kézdi", "Sepsiszentgyörgy": "Szentgyörgy"},
-    "Română": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"},
-    "English": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"}
-}
+# --- LOGÓ BEILLESZTÉSE AZ OLDALSÁVBA ---
+if os.path.exists("Logo.jpeg"):
+    st.sidebar.image("Logo.jpeg", use_container_width=True)
 
 st.sidebar.markdown("### 🌐 Nyelv / Limba / Language")
 valasztott_nyelv = st.sidebar.selectbox("Nyelv", ["Magyar", "Română", "English"], label_visibility="collapsed")
 t = szotar[valasztott_nyelv]  
 aktualis_tavolsagi_varosok = tavolsagi_helyszinek[valasztott_nyelv]
 megjelenitendo_tavolsagi = list(aktualis_tavolsagi_varosok.keys())
+
+# Helyi járatok megállói (Kovászna)
+helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
 
 @dataclass
 class Jarat:
@@ -405,7 +402,6 @@ with ful_3:
     
     with col5:
         st.markdown(f"**{t['honnan']}**")
-        # Opcionális szűrőmező, amivel mobilon is könnyen szűkíthető a lista
         szuro_from = st.text_input(t["szuro_honnan"], key="szuro_from_input", placeholder="Pl. Központ...")
         szurt_allomasok = [stn for stn in all_stations if szuro_from.strip().lower() in stn.lower()] if szuro_from.strip() else all_stations
         
