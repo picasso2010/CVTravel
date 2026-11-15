@@ -1,4 +1,7 @@
-import json
+﻿import json
+import os
+import urllib.request
+from datetime import datetime
 from dataclasses import dataclass
 from typing import List
 import streamlit as st
@@ -87,6 +90,7 @@ szotar = {
         "alcim": "Kovászna — Kézdi — Szentgyörgy",
         "ful_helyi": "🚌 Kovásznai helyi járatok",
         "ful_tavolsagi": "🚆 Interurbán járatok (Kézdi / Szentgyörgy)",
+        "ful_szentgyorgy": "🚌 Szentgyörgy (Multitrans)",
         "kereses_fejlec": "🔍 Útvonal keresése",
         "honnan": "Honnan indulnál?",
         "hova": "Hova utaznál?",
@@ -103,12 +107,22 @@ szotar = {
         "urlap_cim": "✈️ Új járat javaslása",
         "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
         "urlap_gomb": "Beküldési űrlap",
+        "szentgyorgy_cim": "Sepsiszentgyörgy Helyi Menetrend",
+        "szentgyorgy_alcim": "Multitrans valós idejű szűrés",
+        "frissites_gomb": "🔄 Adatok frissítése GitHubról",
+        "frissites_sikeres": "A menetrend sikeresen frissítve!",
+        "frissites_hiba": "Hiba történt a frissítés során.",
+        "vonal": "Vonal",
+        "celallomas": "Célállomás",
+        "nincs_ma_jarat": "A megadott útvonalra mára már nincs közvetlen járat.",
+        "talalatok_szama": "Találatok száma",
     },
     "Română": {
         "cim": "Utazás",
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "ful_helyi": "🚌 Curse locale Covasna",
         "ful_tavolsagi": "🚆 Curse interurbane (Târgu Secuiesc / Sf. Gheorghe)",
+        "ful_szentgyorgy": "🚌 Sf. Gheorghe (Multitrans)",
         "kereses_fejlec": "🔍 Căutare rute",
         "honnan": "Locație plecare:",
         "hova": "Locație destinație:",
@@ -125,12 +139,22 @@ szotar = {
         "urlap_cim": "✈️ Propune o cursă",
         "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o!",
         "urlap_gomb": "Formular trimitere",
+        "szentgyorgy_cim": "Orar Local Sfântu Gheorghe",
+        "szentgyorgy_alcim": "Orar Multitrans și filtrare în timp real",
+        "frissites_gomb": "🔄 Actualizare date de pe GitHub",
+        "frissites_sikeres": "Orarul a fost actualizat cu succes!",
+        "frissites_hiba": "Eroare la actualizare.",
+        "vonal": "Linie",
+        "celallomas": "Destinație",
+        "nincs_ma_jarat": "Nu mai există curse directe pe această rută astăzi.",
+        "talalatok_szama": "Număr de rezultate",
     },
     "English": {
         "cim": "Utazás",
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "ful_helyi": "🚌 Covasna Local Buses",
         "ful_tavolsagi": "🚆 Intercity Rides (Târgu Secuiesc / Sf. Gheorghe)",
+        "ful_szentgyorgy": "🚌 Sf. Gheorghe Local (Multitrans)",
         "kereses_fejlec": "🔍 Search Routes",
         "honnan": "Departure location:",
         "hova": "Destination location:",
@@ -147,10 +171,19 @@ szotar = {
         "urlap_cim": "✈️ Propose a ride",
         "urlap_szoveg": "Found a missing ride? Send it to us!",
         "urlap_gomb": "Submit Form",
+        "szentgyorgy_cim": "Sfântu Gheorghe Local Schedule",
+        "szentgyorgy_alcim": "Multitrans schedule and live filtering",
+        "frissites_gomb": "🔄 Update Data from GitHub",
+        "frissites_sikeres": "Schedule successfully updated!",
+        "frissites_hiba": "Error updating data.",
+        "vonal": "Line",
+        "celallomas": "Destination",
+        "nincs_ma_jarat": "No more direct rides on this route today.",
+        "talalatok_szama": "Number of results",
     }
 }
 
-# Helyi járatok megállói
+# Helyi járatok megállói (Kovászna)
 helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
 
 # Távolsági / városon kívüli helyszínek
@@ -230,17 +263,36 @@ class UtazasiRendszer:
                     megjegyzes=megj
                 ))
 
+# Multitrans JSON kezelés (test5.py logika)
+JSON_URL = "https://raw.githubusercontent.com/picasso2010/CVTravel/main/multitrans_tiszta.json"
+JSON_FILENAME = "multitrans_tiszta.json"
+
+def json_ellenorzes_es_letoltes():
+    if not os.path.exists(JSON_FILENAME):
+        try:
+            urllib.request.urlretrieve(JSON_URL, JSON_FILENAME)
+        except Exception:
+            pass
+
+json_ellenorzes_es_letoltes()
+
+def adatok_betoltese_multitrans():
+    try:
+        with open(JSON_FILENAME, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
 st.title(t["cim"])
 st.caption(t["alcim"])
 st.markdown("---")
 
 rendszer = UtazasiRendszer()
 
-# Fülek használata a szétválasztáshoz
-#ful_1, ful_2 = st.tabs([t["ful_helyi"], t["ful_tavolsagi"]])
-ful_2, ful_1 = st.tabs([t["ful_tavolsagi"], t["ful_helyi"]])
+# Három fül létrehozása
+ful_2, ful_1, ful_3 = st.tabs([t["ful_tavolsagi"], t["ful_helyi"], t["ful_szentgyorgy"]])
 
-# --- 1. FÜL: HELYI JÁRATOK ---
+# --- 1. FÜL: HELYI JÁRATOK (Kovászna) ---
 with ful_1:
     st.subheader(t["kereses_fejlec"])
     col1, col2 = st.columns(2)
@@ -324,6 +376,82 @@ with ful_2:
                             """, unsafe_allow_html=True)
                     else:
                         st.write(t["nincs_vonat"])
+
+# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (test5.py funkciók) ---
+with ful_3:
+    st.subheader(t["szentgyorgy_cim"])
+    st.caption(t["szentgyorgy_alcim"])
+    
+    # Adatok frissítése gomb
+    if st.button(t["frissites_gomb"], key="btn_frissites_szentgyorgy"):
+        try:
+            cache_buster_url = f"{JSON_URL}?t={os.urandom(4).hex()}"
+            urllib.request.urlretrieve(cache_buster_url, JSON_FILENAME)
+            st.success(t["frissites_sikeres"])
+        except Exception:
+            st.error(t["frissites_hiba"])
+
+    multitrans_adatok = adatok_betoltese_multitrans()
+    
+    # Megállók és célállomások kinyerése
+    stations = sorted(list(set(s["hu"] for s in multitrans_adatok if "hu" in s)))
+    destinations = sorted(list(set(line["dest"] for s in multitrans_adatok for line in s.get("lines", []))))
+
+    col5, col6 = st.columns(2)
+    with col5:
+        szentgyorgy_honnan = st.selectbox(t["honnan"], stations if stations else [""], key="szentgyorgy_honnan")
+    with col6:
+        szentgyorgy_hova = st.selectbox(t["hova"], destinations if destinations else [""], key="szentgyorgy_hova")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button(t["gomb"], key="gomb_szentgyorgy"):
+        st.markdown("---")
+        if szentgyorgy_honnan == szentgyorgy_hova:
+            st.warning(t["hiba_ugyanaz"])
+        else:
+            now = datetime.now()
+            current_time_str = now.strftime("%H:%M")
+            is_weekend = now.weekday() >= 5
+
+            talalatok = []
+            for station in multitrans_adatok:
+                if station.get("hu", "").lower() == szentgyorgy_honnan.lower():
+                    for line in station.get("lines", []):
+                        if szentgyorgy_hova.lower() in line.get("dest", "").lower():
+                            vonal_szam = str(line.get("num", ""))
+                            cel_allomas = str(line.get("dest", ""))
+                            
+                            for orare in line.get("orare", []):
+                                title = orare.get("title", "").lower()
+                                if is_weekend and ("szombat" not in title and "sâmbătă" not in title):
+                                    continue
+                                if not is_weekend and ("munkanapok" not in title and "zile lucrătoare" not in title):
+                                    continue
+
+                                for row in orare.get("rows", []):
+                                    ora = row.get("h")
+                                    for perc in row.get("m"):
+                                        jarat_idopont = f"{ora}:{perc}"
+                                        if jarat_idopont > current_time_str:
+                                            talalatok.append({
+                                                "vonal": vonal_szam,
+                                                "cel": cel_allomas,
+                                                "indulas": jarat_idopont
+                                            })
+
+            st.markdown(f"### {t['talalat']}: `{szentgyorgy_honnan}` ➔ `{szentgyorgy_hova}`")
+            
+            if not talalatok:
+                st.info(t["nincs_ma_jarat"])
+            else:
+                st.markdown(f"**{t['talalatok_szama']}:** {len(talalatok)}")
+                for j in talalatok:
+                    st.markdown(f"""
+                    <div class="dark-card">
+                        <div class="dark-card-header">🚌 {t['vonal']}: {j['vonal']} | {t['celallomas']}: {j['cel']}</div>
+                        <div><b>{t['indulas_szoveg']}:</b> <code>{j['indulas']}</code></div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"### {t['urlap_cim']}")
