@@ -1,10 +1,11 @@
 ﻿import json
 import os
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import List
 import streamlit as st
+import pandas as pd
 
 st.set_page_config(
     page_title="Utazás",
@@ -46,24 +47,6 @@ st.markdown("""
         margin: 25px 0;
     }
 
-    .dark-card {
-        border: 1px solid #283649;
-        background-color: #181f29;
-        padding: 18px;
-        margin-bottom: 15px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .dark-card-header {
-        font-weight: 600;
-        color: #38bdf8;
-        border-bottom: 1px solid #283649;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-        font-size: 1.05rem;
-    }
-
     .stButton > button, div[data-testid="stLinkButton"] > a {
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
         color: #ffffff !important;
@@ -97,7 +80,8 @@ szotar = {
         "gomb": "Járatok keresése",
         "hiba_ugyanaz": "Az indulási és az érkezési helyszín nem lehet azonos!",
         "talalat": "Találatok",
-        "nincs_jarat": "Nem találtunk járatot ezen az útvonalon.",
+        "nincs_jarat": "Nem találtunk közvetlen járatot. Átszállásos lehetőségek:",
+        "nincs_semmi": "Nem találtunk sem közvetlen, sem átszállásos járatot.",
         "buszok": "🚌 Buszjáratok",
         "vonatok": "🚆 Vonatjáratok",
         "nincs_busz": "Nincs elérhető busz.",
@@ -108,13 +92,15 @@ szotar = {
         "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
         "urlap_gomb": "Beküldési űrlap",
         "szentgyorgy_cim": "Sepsiszentgyörgy Helyi Menetrend",
-        "szentgyorgy_alcim": "Multitrans okos kereső",
+        "szentgyorgy_alcim": "Multitrans okos kereső (Időalapú rendezés)",
         "frissites_gomb": "🔄 Adatok frissítése GitHubról",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
         "vonal": "Vonal",
         "celallomas": "Célállomás",
-        "nincs_ma_jarat": "A megadott útvonalra mára már nincs közvetlen járat.",
+        "atszallas": "🔄 Átszállásos találatok",
+        "kozvetlen": "✨ Közvetlen járatok",
+        "nincs_ma_jarat": "A megadott útvonalra nincs közvetlen járat. Átszállásos lehetőségek:",
         "talalatok_szama": "Találatok száma",
         "szuro_honnan": "Szűrés / Keresés megállóra:",
         "szuro_hova": "Szűrés / Keresés célállomásra:",
@@ -131,7 +117,8 @@ szotar = {
         "gomb": "Caută curse",
         "hiba_ugyanaz": "Locația de plecare și cea de destinație nu pot fi identice!",
         "talalat": "Rezultate",
-        "nincs_jarat": "Nu am găsit curse pe această rută.",
+        "nincs_jarat": "Nu am găsit curse directe. Opțiuni cu schimb:",
+        "nincs_semmi": "Nu am găsit nicio cursă directă sau cu schimb.",
         "buszok": "🚌 Curse de autobuz",
         "vonatok": "🚆 Curse de tren",
         "nincs_busz": "Nu există autobuze.",
@@ -148,7 +135,9 @@ szotar = {
         "frissites_hiba": "Eroare la actualizare.",
         "vonal": "Linie",
         "celallomas": "Destinație",
-        "nincs_ma_jarat": "Nu mai există curse directe pe această rută astăzi.",
+        "atszallas": "🔄 Rute cu schimb",
+        "kozvetlen": "✨ Curse directe",
+        "nincs_ma_jarat": "Nu există curse directe. Opțiuni cu schimb:",
         "talalatok_szama": "Număr de rezultate",
         "szuro_honnan": "Filtrare stație plecare:",
         "szuro_hova": "Filtrare destinație:",
@@ -165,7 +154,8 @@ szotar = {
         "gomb": "Search Rides",
         "hiba_ugyanaz": "Departure and destination locations cannot be the same!",
         "talalat": "Results",
-        "nincs_jarat": "No available rides on this route.",
+        "nincs_jarat": "No direct rides found. Options with transfer:",
+        "nincs_semmi": "No direct or connecting rides found.",
         "buszok": "🚌 Bus Services",
         "vonatok": "🚆 Train Services",
         "nincs_busz": "No buses available.",
@@ -182,24 +172,23 @@ szotar = {
         "frissites_hiba": "Error updating data.",
         "vonal": "Line",
         "celallomas": "Destination",
-        "nincs_ma_jarat": "No more direct rides on this route today.",
+        "atszallas": "🔄 Connecting routes",
+        "kozvetlen": "✨ Direct rides",
+        "nincs_ma_jarat": "No direct rides. Options with transfer:",
         "talalatok_szama": "Number of results",
         "szuro_honnan": "Filter departure station:",
         "szuro_hova": "Filter destination:",
     }
 }
 
-# Távolsági / városon kívüli helyszínek definiálása ITT történik, még mielőtt az oldalsávban hivatkoznánk rájuk
 tavolsagi_helyszinek = {
     "Magyar": {"Kovászna": "Kovászna", "Kézdivásárhely": "Kézdi", "Sepsiszentgyörgy": "Szentgyörgy"},
     "Română": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"},
     "English": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"}
 }
 
-# Helyi járatok megállói (Kovászna)
 helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
 
-# --- LOGÓ ÉS NYELV VÁLASZTÁS AZ OLDALSÁVBAN ---
 if os.path.exists("Logo.jpeg"):
     st.sidebar.image("Logo.jpeg", use_container_width=True)
 
@@ -273,7 +262,6 @@ class UtazasiRendszer:
                     megjegyzes=megj
                 ))
 
-# Multitrans JSON kezelés
 JSON_URL = "https://raw.githubusercontent.com/picasso2010/CVTravel/main/multitrans_tiszta.json"
 JSON_FILENAME = "multitrans_tiszta.json"
 
@@ -299,8 +287,12 @@ st.markdown("---")
 
 rendszer = UtazasiRendszer()
 
-# Három fül létrehozása
 ful_2, ful_1, ful_3 = st.tabs([t["ful_tavolsagi"], t["ful_helyi"], t["ful_szentgyorgy"]])
+
+# Időpont összehasonlító segédfüggvény átszálláshoz
+def ido_perc(ido_str):
+    reszek = ido_str.split(":")
+    return int(reszek[0]) * 60 + int(reszek[1])
 
 # --- 1. FÜL: HELYI JÁRATOK (Kovászna) ---
 with ful_1:
@@ -320,18 +312,41 @@ with ful_1:
             talalatok = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == helyi_honnan and j.hova == helyi_hova]
             st.markdown(f"### {t['talalat']}: `{helyi_honnan}` ➔ `{helyi_hova}`")
             
-            if not talalatok:
-                st.info(t["nincs_jarat"])
-            else:
-                st.markdown(f"#### 🚌 {t['buszok']}")
+            if talalatok:
+                st.markdown(f"#### {t['kozvetlen']}")
+                df_data = []
                 for b in talalatok:
-                    megj_html = f"<br><small style='color: #38bdf8;'><b>{t['megjegyzes']}:</b> {b.megjegyzes}</small>" if b.megjegyzes else ""
-                    st.markdown(f"""
-                    <div class="dark-card">
-                        <div class="dark-card-header">🚌 Járat: {b.jaratszam}</div>
-                        <div><b>{t['indulas_szoveg']}:</b> <code>{b.indulas}</code>{megj_html}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    df_data.append({
+                        t["vonal"] if "vonal" in t else "Járat": b.jaratszam,
+                        t["indulas_szoveg"]: b.indulas,
+                        t["megjegyzes"]: b.megjegyzes if b.megjegyzes else "-"
+                    })
+                st.dataframe(pd.DataFrame(df_data), use_container_width=True, hide_index=True)
+            else:
+                # Átszállás keresése helyi járatok között (pl. Centru -> X -> Gara)
+                atszallasok = []
+                elso_lab = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == helyi_honnan]
+                for j1 in elso_lab:
+                    kozos_megallo = j1.hova
+                    if kozos_megallo != helyi_hova:
+                        masodik_lab = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == kozos_megallo and j.hova == helyi_hova]
+                        for j2 in masodik_lab:
+                            if ido_perc(j2.indulas) >= ido_perc(j1.indulas) + 5: # min 5 perc átszállási idő
+                                atszallasok.append({
+                                    "1. Indulás": j1.indulas,
+                                    "1. Járat": j1.jaratszam,
+                                    "Átszállás": kozos_megallo,
+                                    "2. Indulás": j2.indulas,
+                                    "2. Járat": j2.jaratszam,
+                                    t["megjegyzes"]: f"{j1.megjegyzes} / {j2.megjegyzes}".strip(" /")
+                                })
+                
+                if atszallasok:
+                    st.info(t["nincs_jarat"])
+                    st.markdown(f"#### {t['atszallas']}")
+                    st.dataframe(pd.DataFrame(atszallasok), use_container_width=True, hide_index=True)
+                else:
+                    st.info(t["nincs_semmi"])
 
 # --- 2. FÜL: TÁVOLSÁGI / INTERURBÁN JÁRATOK ---
 with ful_2:
@@ -354,40 +369,27 @@ with ful_2:
             talalatok = [j for j in rendszer.jaratok if j.tipus in ["Busz", "Vonat"] and j.honnan == tav_honnan and j.hova == tav_hova]
             st.markdown(f"### {t['talalat']}: `{valasztott_honnan_nev}` ➔ `{valasztott_hova_nev}`")
             
-            if not talalatok:
-                st.info(t["nincs_jarat"])
-            else:
-                buszok = [j for j in talalatok if j.tipus == "Busz"]
-                vonatok = [j for j in talalatok if j.tipus == "Vonat"]
-                
-                col_b, col_v = st.columns(2)
-                with col_b:
+            buszok = [j for j in talalatok if j.tipus == "Busz"]
+            vonatok = [j for j in talalatok if j.tipus == "Vonat"]
+            
+            if buszok or vonatok:
+                if buszok:
                     st.markdown(f"#### {t['buszok']}")
-                    if buszok:
-                        for b in buszok:
-                            st.markdown(f"""
-                            <div class="dark-card">
-                                <div class="dark-card-header">🚌 Járat: {b.jaratszam}</div>
-                                <div><b>{t['indulas_szoveg']}:</b> <code>{b.indulas}</code></div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                    else:
-                        st.write(t["nincs_busz"])
-                        
-                with col_v:
+                    df_b = pd.DataFrame([{ "Járat": b.jaratszam, t["indulas_szoveg"]: b.indulas } for b in buszok])
+                    st.dataframe(df_b, use_container_width=True, hide_index=True)
+                else:
+                    st.write(t["nincs_busz"])
+                    
+                if vonatok:
                     st.markdown(f"#### {t['vonatok']}")
-                    if vonatok:
-                        for v in vonatok:
-                            st.markdown(f"""
-                            <div class="dark-card">
-                                <div class="dark-card-header">🚆 Járat: {v.jaratszam}</div>
-                                <div><b>{t['indulas_szoveg']}:</b> <code>{v.indulas}</code></div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                    else:
-                        st.write(t["nincs_vonat"])
+                    df_v = pd.DataFrame([{ "Járat": v.jaratszam, t["indulas_szoveg"]: v.indulas } for v in vonatok])
+                    st.dataframe(df_v, use_container_width=True, hide_index=True)
+                else:
+                    st.write(t["nincs_vonat"])
+            else:
+                st.info(t["nincs_semmi"])
 
-# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (Okos, mobilosbarát legördülős kereső) ---
+# --- 3. FÜL: SEPSISZENTGYÖRGY MULTITRANS (Időalapú rendezés & Táblázat) ---
 with ful_3:
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
@@ -412,14 +414,14 @@ with ful_3:
         szuro_from = st.text_input(t["szuro_honnan"], key="szuro_from_input", placeholder="Pl. Központ...")
         szurt_allomasok = [stn for stn in all_stations if szuro_from.strip().lower() in stn.lower()] if szuro_from.strip() else all_stations
         
-        szentgyorgy_honnan = st.selectbox("Valaszd ki a megallot", szurt_allomasok if szurt_allomasok else all_stations, key="select_honnan_st", label_visibility="collapsed")
+        szentgyorgy_honnan = st.selectbox("Válaszd ki a megállót", szurt_allomasok if szurt_allomasok else all_stations, key="select_honnan_st", label_visibility="collapsed")
 
     with col6:
         st.markdown(f"**{t['hova']}**")
         szuro_to = st.text_input(t["szuro_hova"], key="szuro_to_input", placeholder="Pl. Állomás...")
         szurt_celok = [dst for dst in all_destinations if szuro_to.strip().lower() in dst.lower()] if szuro_to.strip() else all_destinations
         
-        szentgyorgy_hova = st.selectbox("Valaszd ki a celallomast", szurt_celok if szurt_celok else all_destinations, key="select_hova_st", label_visibility="collapsed")
+        szentgyorgy_hova = st.selectbox("Válaszd ki a célállomást", szurt_celok if szurt_celok else all_destinations, key="select_hova_st", label_visibility="collapsed")
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(t["gomb"], key="gomb_szentgyorgy"):
@@ -451,7 +453,7 @@ with ful_3:
                                     ora = row.get("h")
                                     percek = row.get("m", []) if hasattr(row, 'get') else []
                                     for perc in percek:
-                                        jarat_idopont = f"{ora}:{perc}"
+                                        jarat_idopont = f"{str(ora).zfill(2)}:{str(perc).zfill(2)}"
                                         if jarat_idopont > current_time_str:
                                             talalatok.append({
                                                 "vonal": vonal_szam,
@@ -459,19 +461,70 @@ with ful_3:
                                                 "indulas": jarat_idopont
                                             })
 
+            # Időalapú rendezés (növekvő sorrendben az indulás szerint)
+            talalatok = sorted(talalatok, key=lambda x: x["indulas"])
+
             st.markdown(f"### {t['talalat']}: `{szentgyorgy_honnan}` ➔ `{szentgyorgy_hova}`")
             
-            if not talalatok:
-                st.info(t["nincs_ma_jarat"])
-            else:
+            if talalatok:
                 st.markdown(f"**{t['talalatok_szama']}:** {len(talalatok)}")
-                for j in talalatok:
-                    st.markdown(f"""
-                    <div class="dark-card">
-                        <div class="dark-card-header">🚌 {t['vonal']}: {j['vonal']} | {t['celallomas']}: {j['cel']}</div>
-                        <div><b>{t['indulas_szoveg']}:</b> <code>{j['indulas']}</code></div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                df_multi = pd.DataFrame([
+                    {
+                        t['indulas_szoveg']: j['indulas'],
+                        t['vonal']: j['vonal'],
+                        t['celallomas']: j['cel']
+                    } for j in talalatok
+                ])
+                st.dataframe(df_multi, use_container_width=True, hide_index=True)
+            else:
+                # Multitrans átszállásos kereső logika
+                st.info(t["nincs_ma_jarat"])
+                
+                # Köztes megállók összegyűjtése a Multitrans adatbázisból
+                atszallasok = []
+                # Első láb: honnan -> köztes
+                for s1 in multitrans_adatok:
+                    s1_name = s1.get("hu", "")
+                    if s1_name.lower() == szentgyorgy_honnan.lower():
+                        for l1 in s1.get("lines", []):
+                            koztes = l1.get("dest", "")
+                            if koztes.lower() != szentgyorgy_hova.lower():
+                                # Megnézzük, hogy a köztes megállóból indul-e járat a végcél felé
+                                for s2 in multitrans_adatok:
+                                    if s2.get("hu", "").lower() == koztes.lower():
+                                        for l2 in s2.get("lines", []):
+                                            if szentgyorgy_hova.lower() in l2.get("dest", "").lower():
+                                                # Találtunk egy köztes átszállási pontot, most nézzük az időpontokat
+                                                for o1 in l1.get("orare", []):
+                                                    for r1 in o1.get("rows", []):
+                                                        for p1 in r1.get("m", []):
+                                                            t1 = f"{str(r1.get('h')).zfill(2)}:{str(p1).zfill(2)}"
+                                                            if t1 > current_time_str:
+                                                                # Megnézzük a 2. járatot az átszállás után min 5 perc múlva
+                                                                for o2 in l2.get("orare", []):
+                                                                    for r2 in o2.get("rows", []):
+                                                                        for p2 in r2.get("m", []):
+                                                                            t2 = f"{str(r2.get('h')).zfill(2)}:{str(p2).zfill(2)}"
+                                                                            if ido_perc(t2) >= ido_perc(t1) + 5:
+                                                                                atszallasok.append({
+                                                                                    "1. Indulás": t1,
+                                                                                    "Vonal 1": l1.get("num"),
+                                                                                    "Átszállási hely": koztes,
+                                                                                    "2. Indulás": t2,
+                                                                                    "Vonal 2": l2.get("num"),
+                                                                                    "Célállomás": l2.get("dest")
+                                                                                })
+                
+                if atszallasok:
+                    # Időrendbe rendezés az első indulás szerint
+                    atszallasok = sorted(atszallasok, key=lambda x: x["1. Indulás"])
+                    # Duplikációk szűrése
+                    unique_atszallasok = [dict(t) for t in {tuple(d.items()) for d in atszallasok}]
+                    
+                    st.markdown(f"#### {t['atszallas']}")
+                    st.dataframe(pd.DataFrame(unique_atszallasok), use_container_width=True, hide_index=True)
+                else:
+                    st.warning("Nem található átszállásos útvonal sem.")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"### {t['urlap_cim']}")
