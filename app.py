@@ -318,7 +318,7 @@ helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
 
 taxi_adatok = [
     {"varos_kulcs": "varos_kovaszna", "nev": "Tóth József", "telefonok": ["0740074870"]},
-    {"varos_kulcs": "varos_kovaszna", "nev": "Beder Csabi", "telefonok": ["0745298037"]},
+    {"varos_kulcs": "varos_kovaszna", "nev": "Beder Csaba", "telefonok": ["0745298037"]},
     {"varos_kulcs": "varos_kovaszna", "nev": "Blöki", "telefonok": ["0760320594"]},
     {"varos_kulcs": "varos_kovaszna", "nev": "Raduly József", "telefonok": ["0744168021"]},
     {"varos_kulcs": "varos_kezdi", "nev": "Bomba", "telefonok": ["0766949229"]},
