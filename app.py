@@ -92,6 +92,28 @@ st.markdown("""
         border-color: #38bdf8 !important;
     }
 
+    /* APK letöltő kártya */
+    .apk-box {
+        background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(24, 29, 36, 0.95) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin: 14px 0 18px 0;
+    }
+
+    .apk-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #38bdf8 !important;
+        margin-bottom: 4px;
+    }
+
+    .apk-desc {
+        font-size: 0.9rem;
+        color: #cbd5e1 !important;
+        margin-bottom: 0;
+    }
+
     /* Taxi kártyák stílusa */
     .taxi-card {
         background-color: #181d24;
@@ -186,6 +208,9 @@ szotar = {
         "urlap_gomb": "Beküldési űrlap",
         "szentgyorgy_cim": "Sepsiszentgyörgy Helyi Menetrend",
         "szentgyorgy_alcim": "Multitrans okos kereső (Időalapú rendezés)",
+        "apk_cim": "📱 Android alkalmazás offline móddal",
+        "apk_leiras": "A sepsiszentgyörgyi helyi járatok offline is böngészhetők telefonon a CVTravel Android appal.",
+        "apk_gomb": "⬇️ cvtravel.apk letöltése",
         "frissites_gomb": "🔄 Adatok frissítése GitHubról",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
@@ -235,6 +260,9 @@ szotar = {
         "urlap_gomb": "Formular trimitere",
         "szentgyorgy_cim": "Orar Local Sfântu Gheorghe",
         "szentgyorgy_alcim": "Orar Multitrans căutare inteligentă",
+        "apk_cim": "📱 Aplicație Android cu mod offline",
+        "apk_leiras": "Poți consulta cursele locale din Sfântu Gheorghe și offline cu aplicația Android CVTravel.",
+        "apk_gomb": "⬇️ Descarcă cvtravel.apk",
         "frissites_gomb": "🔄 Actualizare date de pe GitHub",
         "frissites_sikeres": "Orarul a fost actualizat cu succes!",
         "frissites_hiba": "Eroare la actualizare.",
@@ -284,6 +312,9 @@ szotar = {
         "urlap_gomb": "Submit Form",
         "szentgyorgy_cim": "Sfântu Gheorghe Local Schedule",
         "szentgyorgy_alcim": "Multitrans smart search",
+        "apk_cim": "📱 Android App with Offline Mode",
+        "apk_leiras": "Browse Sfântu Gheorghe local transit offline on your phone using the CVTravel Android app.",
+        "apk_gomb": "⬇️ Download cvtravel.apk",
         "frissites_gomb": "🔄 Update Data from GitHub",
         "frissites_sikeres": "Schedule successfully updated!",
         "frissites_hiba": "Error updating data.",
@@ -422,6 +453,8 @@ class UtazasiRendszer:
 
 JSON_URL = "https://raw.githubusercontent.com/picasso2010/CVTravel/main/multitrans_tiszta.json"
 JSON_FILENAME = "multitrans_tiszta.json"
+APK_URL = "https://raw.githubusercontent.com/picasso2010/CVTravel/main/cvtravel.apk"
+APK_FILENAME = "cvtravel.apk"
 
 def json_ellenorzes_es_letoltes():
     if not os.path.exists(JSON_FILENAME):
@@ -547,6 +580,28 @@ elif valasztott_oldal == "tavolsagi":
 elif valasztott_oldal == "szentgyorgy":
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
+
+    st.markdown(f"""
+    <div class="apk-box">
+        <div class="apk-title">{t['apk_cim']}</div>
+        <p class="apk-desc">{t['apk_leiras']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if os.path.exists(APK_FILENAME):
+        with open(APK_FILENAME, "rb") as apk_file:
+            st.download_button(
+                label=t["apk_gomb"],
+                data=apk_file,
+                file_name=APK_FILENAME,
+                mime="application/vnd.android.package-archive",
+                key="btn_download_apk_local",
+                use_container_width=True
+            )
+    else:
+        st.link_button(t["apk_gomb"], APK_URL, use_container_width=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     if st.button(t["frissites_gomb"], key="btn_frissites_szentgyorgy"):
         try:
