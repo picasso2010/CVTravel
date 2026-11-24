@@ -362,5 +362,19 @@
         "hova": "Kézdi",
         "jaratszam": "Negru trans",
         "indulas": "17:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Lyk Saveni - Brasov",
+        "indulas": "15:00"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Lyk Brasov - Saveni",
+        "indulas": "18:30"
     }
 ]
