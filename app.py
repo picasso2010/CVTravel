@@ -611,7 +611,6 @@ if valasztott_oldal == "helyi":
                 df_data = []
                 for b in talalatok:
                     df_data.append({
-                        t["vonal"] if "vonal" in t else "Járat": b.jaratszam,
                         t["indulas_szoveg"]: b.indulas,
                         t["megjegyzes"]: fordit_megjegyzest(b.megjegyzes)
                     })
