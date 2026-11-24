@@ -189,8 +189,23 @@ st.markdown("""
         font-size: 0.9rem;
         color: #fdba74 !important;
     }
+
+    /* Diszkrét frissítési dátum a találatok alatt */
+    .updated-meta {
+        margin-top: 10px;
+        font-size: 0.78rem;
+        color: #64748b !important;
+        text-align: right;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# Saját frissítési dátumok menetrendenként (igény szerint szabadon módosíthatók)
+MENETREND_DATUMOK = {
+    "helyi": "2026-11-24",
+    "tavolsagi": "2026-11-24",
+    "szentgyorgy": "2026-11-24",
+}
 
 szotar = {
     "Magyar": {
@@ -215,6 +230,7 @@ szotar = {
         "nincs_vonat": "Nincs elérhető vonat.",
         "indulas_szoveg": "Indulás",
         "megjegyzes": "Megjegyzés",
+        "frissitve": "Frissítve",
         "nincs_hetvegen": "Nem közlekedik hétvégén és ünnepnapokon",
         "hetvegi_magyarazat": "🟠 Narancssárga sorok: ezek a Codreanu járatok nem közlekednek hétvégén, illetve ünnepnapokon.",
         "urlap_cim": "✈️ Új járat javaslása",
@@ -268,6 +284,7 @@ szotar = {
         "nincs_vonat": "Nu există trenuri.",
         "indulas_szoveg": "Plecare",
         "megjegyzes": "Mențiune",
+        "frissitve": "Actualizat la",
         "nincs_hetvegen": "Nu circulă în weekend și de sărbători legale",
         "hetvegi_magyarazat": "🟠 Rândurile portocalii: aceste curse Codreanu nu circulă în weekend și de sărbători legale.",
         "urlap_cim": "✈️ Propune o cursă",
@@ -321,6 +338,7 @@ szotar = {
         "nincs_vonat": "No trains available.",
         "indulas_szoveg": "Departure",
         "megjegyzes": "Note",
+        "frissitve": "Updated",
         "nincs_hetvegen": "Does not operate on weekends and public holidays",
         "hetvegi_magyarazat": "🟠 Orange rows: these Codreanu services do not operate on weekends or public holidays.",
         "urlap_cim": "✈️ Propose a ride",
@@ -394,6 +412,14 @@ def nem_kozlekedik_hetvegen_es_unnepnapokon(honnan: str, hova: str, jaratszam: s
     if engedelyezett is None:
         return False
     return normalizal_ido(indulas) not in engedelyezett
+
+def megjelenit_frissitesi_datum(menetrend_kulcs: str):
+    datum = MENETREND_DATUMOK.get(menetrend_kulcs, "")
+    if datum:
+        st.markdown(
+            f'<div class="updated-meta">{t["frissitve"]}: {datum}</div>',
+            unsafe_allow_html=True
+        )
 
 # --- OLDALSÁV (SIDEBAR) ---
 if os.path.exists("Logo.jpeg"):
@@ -546,6 +572,7 @@ if valasztott_oldal == "helyi":
                         t["megjegyzes"]: b.megjegyzes if b.megjegyzes else "-"
                     })
                 st.dataframe(pd.DataFrame(df_data), use_container_width=True, hide_index=True)
+                megjelenit_frissitesi_datum("helyi")
             else:
                 atszallasok = []
                 elso_lab = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == helyi_honnan]
@@ -568,8 +595,10 @@ if valasztott_oldal == "helyi":
                     st.info(t["nincs_jarat"])
                     st.markdown(f"#### {t['atszallas']}")
                     st.dataframe(pd.DataFrame(atszallasok), use_container_width=True, hide_index=True)
+                    megjelenit_frissitesi_datum("helyi")
                 else:
                     st.info(t["nincs_semmi"])
+                    megjelenit_frissitesi_datum("helyi")
 
 # --- 2. NÉZET: TÁVOLSÁGI / INTERURBÁN JÁRATOK ---
 elif valasztott_oldal == "tavolsagi":
@@ -642,8 +671,11 @@ elif valasztott_oldal == "tavolsagi":
                     st.dataframe(df_v, use_container_width=True, hide_index=True)
                 else:
                     st.write(t["nincs_vonat"])
+
+                megjelenit_frissitesi_datum("tavolsagi")
             else:
                 st.info(t["nincs_semmi"])
+                megjelenit_frissitesi_datum("tavolsagi")
 
 # --- 3. NÉZET: SEPSISZENTGYÖRGY MULTITRANS ---
 elif valasztott_oldal == "szentgyorgy":
@@ -745,6 +777,7 @@ elif valasztott_oldal == "szentgyorgy":
                     } for j in talalatok
                 ])
                 st.dataframe(df_multi, use_container_width=True, hide_index=True)
+                megjelenit_frissitesi_datum("szentgyorgy")
             else:
                 st.info(t["nincs_ma_jarat"])
 
@@ -784,8 +817,10 @@ elif valasztott_oldal == "szentgyorgy":
 
                     st.markdown(f"#### {t['atszallas']}")
                     st.dataframe(pd.DataFrame(unique_atszallasok), use_container_width=True, hide_index=True)
+                    megjelenit_frissitesi_datum("szentgyorgy")
                 else:
                     st.warning("Nem található átszállásos útvonal sem.")
+                    megjelenit_frissitesi_datum("szentgyorgy")
 
 # --- 4. NÉZET: TAXI ELÉRHETŐSÉGEK ---
 elif valasztott_oldal == "taxi":
