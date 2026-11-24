@@ -278,7 +278,7 @@ szotar = {
         "varos_szentgyorgy": "Sepsiszentgyörgy",
     },
     "Română": {
-        "cim": "Utazás",
+        "cim": "Călătorii",
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "menu_cim": "🧭 Navigare",
         "ful_helyi": "🚌 Curse locale Covasna",
@@ -335,7 +335,7 @@ szotar = {
         "varos_szentgyorgy": "Sfântu Gheorghe",
     },
     "English": {
-        "cim": "Utazás",
+        "cim": "Travel",
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "menu_cim": "🧭 Navigation",
         "ful_helyi": "🚌 Covasna Local Buses",
