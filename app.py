@@ -79,6 +79,9 @@ st.markdown("""
         margin-bottom: 0 !important;
         transition: all 0.2s ease;
         cursor: pointer;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     [data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
@@ -241,7 +244,7 @@ szotar = {
         "szentgyorgy_alcim": "Multitrans okos kereső (Időalapú rendezés)",
         "apk_cim": "📱 Android alkalmazás offline móddal",
         "apk_leiras": "A sepsiszentgyörgyi helyi járatok offline is böngészhetők telefonon a CVTravel Android appal.",
-        "apk_gomb": "⬇️ cvtravel.apk letöltése",
+        "apk_gomb": "⬇️ Android alkalmazás letöltése",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
         "vonal": "Vonal",
@@ -270,7 +273,7 @@ szotar = {
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "menu_cim": "🧭 Navigare",
         "ful_helyi": "🚌 Curse locale Covasna",
-        "ful_tavolsagi": "🚆 Curse interurbane (Târgu Secuiesc / Sf. Gheorghe)",
+        "ful_tavolsagi": "🚆 Curse interurbane (Tg. Secuiesc / Sf. Gh.)",
         "ful_szentgyorgy": "🚌 Sf. Gheorghe (Multitrans)",
         "ful_taxi": "🚕 Contacte Taxi",
         "kereses_fejlec": "🔍 Căutare rute",
@@ -298,7 +301,7 @@ szotar = {
         "szentgyorgy_alcim": "Orar Multitrans căutare inteligentă",
         "apk_cim": "📱 Aplicație Android cu mod offline",
         "apk_leiras": "Poți consulta cursele locale din Sfântu Gheorghe și offline cu aplicația Android CVTravel.",
-        "apk_gomb": "⬇️ Descarcă cvtravel.apk",
+        "apk_gomb": "⬇️ Descarcă aplicația Android",
         "frissites_sikeres": "Orarul a fost actualizat cu succes!",
         "frissites_hiba": "Eroare la actualizare.",
         "vonal": "Linie",
@@ -355,7 +358,7 @@ szotar = {
         "szentgyorgy_alcim": "Multitrans smart search",
         "apk_cim": "📱 Android App with Offline Mode",
         "apk_leiras": "Browse Sfântu Gheorghe local transit offline on your phone using the CVTravel Android app.",
-        "apk_gomb": "⬇️ Download cvtravel.apk",
+        "apk_gomb": "⬇️ Download Android app",
         "frissites_sikeres": "Schedule successfully updated!",
         "frissites_hiba": "Error updating data.",
         "vonal": "Line",
