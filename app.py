@@ -177,6 +177,18 @@ st.markdown("""
         border-color: #38bdf8;
         color: #ffffff !important;
     }
+
+    /* Narancssárga figyelmeztető jelmagyarázat */
+    .orange-legend {
+        background-color: rgba(249, 115, 22, 0.14);
+        border: 1px solid rgba(251, 146, 60, 0.65);
+        border-left: 4px solid #f97316;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #fdba74 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -203,6 +215,8 @@ szotar = {
         "nincs_vonat": "Nincs elérhető vonat.",
         "indulas_szoveg": "Indulás",
         "megjegyzes": "Megjegyzés",
+        "nincs_hetvegen": "Nem közlekedik hétvégén és ünnepnapokon",
+        "hetvegi_magyarazat": "🟠 Narancssárga sorok: ezek a Codreanu járatok nem közlekednek hétvégén, illetve ünnepnapokon.",
         "urlap_cim": "✈️ Új járat javaslása",
         "urlap_szoveg": "Hiányzó járatot találtál? Küldd el nekünk!",
         "urlap_gomb": "Beküldési űrlap",
@@ -254,6 +268,8 @@ szotar = {
         "nincs_vonat": "Nu există trenuri.",
         "indulas_szoveg": "Plecare",
         "megjegyzes": "Mențiune",
+        "nincs_hetvegen": "Nu circulă în weekend și de sărbători legale",
+        "hetvegi_magyarazat": "🟠 Rândurile portocalii: aceste curse Codreanu nu circulă în weekend și de sărbători legale.",
         "urlap_cim": "✈️ Propune o cursă",
         "urlap_szoveg": "Ai găsit o cursă lipsă? Trimite-o!",
         "urlap_gomb": "Formular trimitere",
@@ -305,6 +321,8 @@ szotar = {
         "nincs_vonat": "No trains available.",
         "indulas_szoveg": "Departure",
         "megjegyzes": "Note",
+        "nincs_hetvegen": "Does not operate on weekends and public holidays",
+        "hetvegi_magyarazat": "🟠 Orange rows: these Codreanu services do not operate on weekends or public holidays.",
         "urlap_cim": "✈️ Propose a ride",
         "urlap_szoveg": "Found a missing ride? Send it to us!",
         "urlap_gomb": "Submit Form",
@@ -355,6 +373,27 @@ taxi_adatok = [
     {"varos_kulcs": "varos_szentgyorgy", "nev": "Herr taxi", "telefonok": ["0740 439 999"]},
     {"varos_kulcs": "varos_szentgyorgy", "nev": "Day taxi", "telefonok": ["0740 848 034"]},
 ]
+
+# Hétvégén és ünnepnapokon közlekedő Codreanu járatok (normalizált HH:MM formátumban)
+CODREANU_HETVEGI_IDOPONTOK = {
+    ("Kovászna", "Szentgyörgy"): {"06:00", "10:00", "17:00"},
+    ("Szentgyörgy", "Kovászna"): {"08:45", "12:45", "18:00"},
+}
+
+def normalizal_ido(ido_str: str) -> str:
+    try:
+        reszek = ido_str.strip().split(":")
+        return f"{int(reszek[0]):02d}:{int(reszek[1]):02d}"
+    except Exception:
+        return ido_str.strip()
+
+def nem_kozlekedik_hetvegen_es_unnepnapokon(honnan: str, hova: str, jaratszam: str, indulas: str) -> bool:
+    if jaratszam.strip().lower() != "codreanu":
+        return False
+    engedelyezett = CODREANU_HETVEGI_IDOPONTOK.get((honnan, hova))
+    if engedelyezett is None:
+        return False
+    return normalizal_ido(indulas) not in engedelyezett
 
 # --- OLDALSÁV (SIDEBAR) ---
 if os.path.exists("Logo.jpeg"):
@@ -559,8 +598,41 @@ elif valasztott_oldal == "tavolsagi":
             if buszok or vonatok:
                 if buszok:
                     st.markdown(f"#### {t['buszok']}")
-                    df_b = pd.DataFrame([{"Járat": b.jaratszam, t["indulas_szoveg"]: b.indulas} for b in buszok])
-                    st.dataframe(df_b, use_container_width=True, hide_index=True)
+                    van_narancs_busz = False
+                    sorok_b = []
+                    narancs_indexek = []
+
+                    for idx, b in enumerate(buszok):
+                        nincs_hetvegen = nem_kozlekedik_hetvegen_es_unnepnapokon(
+                            b.honnan, b.hova, b.jaratszam, b.indulas
+                        )
+                        if nincs_hetvegen:
+                            van_narancs_busz = True
+                            narancs_indexek.append(idx)
+
+                        sorok_b.append({
+                            "Járat": b.jaratszam,
+                            t["indulas_szoveg"]: normalizal_ido(b.indulas),
+                            t["megjegyzes"]: t["nincs_hetvegen"] if nincs_hetvegen else (b.megjegyzes if b.megjegyzes else "-")
+                        })
+
+                    df_b = pd.DataFrame(sorok_b)
+
+                    def szinez_narancs(row):
+                        if row.name in narancs_indexek:
+                            return [
+                                "background-color: rgba(249, 115, 22, 0.28); color: #fed7aa; font-weight: 600;"
+                            ] * len(row)
+                        return [""] * len(row)
+
+                    styled_df_b = df_b.style.apply(szinez_narancs, axis=1)
+                    st.dataframe(styled_df_b, use_container_width=True, hide_index=True)
+
+                    if van_narancs_busz:
+                        st.markdown(
+                            f'<div class="orange-legend">{t["hetvegi_magyarazat"]}</div>',
+                            unsafe_allow_html=True
+                        )
                 else:
                     st.write(t["nincs_busz"])
 
