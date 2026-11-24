@@ -230,6 +230,7 @@ szotar = {
         "nincs_vonat": "Nincs elérhető vonat.",
         "indulas_szoveg": "Indulás",
         "megjegyzes": "Megjegyzés",
+        "csak_hetkoznap": "Csak hétköznap",
         "frissitve": "Frissítve",
         "nincs_hetvegen": "Nem közlekedik hétvégén és ünnepnapokon",
         "hetvegi_magyarazat": "🟠 Narancssárga sorok: ezek a Codreanu járatok nem közlekednek hétvégén, illetve ünnepnapokon.",
@@ -284,6 +285,7 @@ szotar = {
         "nincs_vonat": "Nu există trenuri.",
         "indulas_szoveg": "Plecare",
         "megjegyzes": "Mențiune",
+        "csak_hetkoznap": "Doar în zilele lucrătoare",
         "frissitve": "Actualizat la",
         "nincs_hetvegen": "Nu circulă în weekend și de sărbători legale",
         "hetvegi_magyarazat": "🟠 Rândurile portocalii: aceste curse Codreanu nu circulă în weekend și de sărbători legale.",
@@ -338,6 +340,7 @@ szotar = {
         "nincs_vonat": "No trains available.",
         "indulas_szoveg": "Departure",
         "megjegyzes": "Note",
+        "csak_hetkoznap": "Weekdays only",
         "frissitve": "Updated",
         "nincs_hetvegen": "Does not operate on weekends and public holidays",
         "hetvegi_magyarazat": "🟠 Orange rows: these Codreanu services do not operate on weekends or public holidays.",
@@ -372,6 +375,13 @@ szotar = {
     }
 }
 
+def fordit_megjegyzest(megj: str) -> str:
+    if not megj:
+        return "-"
+    if megj.strip().lower() == "csak hétköznap":
+        return t["csak_hetkoznap"]
+    return megj
+
 tavolsagi_helyszinek = {
     "Magyar": {"Kovászna": "Kovászna", "Kézdivásárhely": "Kézdi", "Sepsiszentgyörgy": "Szentgyörgy"},
     "Română": {"Covasna": "Kovászna", "Târgu Secuiesc": "Kézdi", "Sfântu Gheorghe": "Szentgyörgy"},
@@ -379,6 +389,27 @@ tavolsagi_helyszinek = {
 }
 
 helyi_helyszinek = ["Centru", "Voinesti", "Gara"]
+
+helyi_helyszin_forditasok = {
+    "Magyar": {
+        "Centru": "Városközpont - Gábor Áron utca",
+        "Voinesti": "Vajnafalva - Mihai Eminescu utca",
+        "Gara": "Vasutállomás - Állomás utca",
+    },
+    "Română": {
+        "Centru": "Centru - str. Gábor Áron",
+        "Voinesti": "Voinesti - Spitalul de cardiologie - str. Mihai Eminescu",
+        "Gara": "Gara CFR - str. Garii",
+    },
+    "English": {
+        "Centru": "City center",
+        "Voinesti": "Voinesti - Cardiology Hospital - Mihai Eminescu Street",
+        "Gara": "Train Station",
+    }
+}
+
+def helyi_nev(kulcs: str, nyelv: str) -> str:
+    return helyi_helyszin_forditasok.get(nyelv, helyi_helyszin_forditasok["Magyar"]).get(kulcs, kulcs)
 
 taxi_adatok = [
     {"varos_kulcs": "varos_kovaszna", "nev": "Tóth József", "telefonok": ["0740074870"]},
@@ -549,9 +580,20 @@ if valasztott_oldal == "helyi":
     st.subheader(t["ful_helyi"])
     col1, col2 = st.columns(2)
     with col1:
-        helyi_honnan = st.selectbox(t["honnan"], helyi_helyszinek, key="helyi_honnan")
+        helyi_honnan = st.selectbox(
+            t["honnan"],
+            helyi_helyszinek,
+            format_func=lambda k: helyi_nev(k, valasztott_nyelv),
+            key="helyi_honnan"
+        )
     with col2:
-        helyi_hova = st.selectbox(t["hova"], helyi_helyszinek, key="helyi_hova", index=1)
+        helyi_hova = st.selectbox(
+            t["hova"],
+            helyi_helyszinek,
+            format_func=lambda k: helyi_nev(k, valasztott_nyelv),
+            key="helyi_hova",
+            index=1
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(t["gomb"], key="gomb_helyi"):
@@ -560,7 +602,9 @@ if valasztott_oldal == "helyi":
             st.warning(t["hiba_ugyanaz"])
         else:
             talalatok = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == helyi_honnan and j.hova == helyi_hova]
-            st.markdown(f"### {t['talalat']}: `{helyi_honnan}` ➔ `{helyi_hova}`")
+            honnan_megjelenitett = helyi_nev(helyi_honnan, valasztott_nyelv)
+            hova_megjelenitett = helyi_nev(helyi_hova, valasztott_nyelv)
+            st.markdown(f"### {t['talalat']}: `{honnan_megjelenitett}` ➔ `{hova_megjelenitett}`")
 
             if talalatok:
                 st.markdown(f"#### {t['kozvetlen']}")
@@ -569,7 +613,7 @@ if valasztott_oldal == "helyi":
                     df_data.append({
                         t["vonal"] if "vonal" in t else "Járat": b.jaratszam,
                         t["indulas_szoveg"]: b.indulas,
-                        t["megjegyzes"]: b.megjegyzes if b.megjegyzes else "-"
+                        t["megjegyzes"]: fordit_megjegyzest(b.megjegyzes)
                     })
                 st.dataframe(pd.DataFrame(df_data), use_container_width=True, hide_index=True)
                 megjelenit_frissitesi_datum("helyi")
@@ -582,13 +626,14 @@ if valasztott_oldal == "helyi":
                         masodik_lab = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == kozos_megallo and j.hova == helyi_hova]
                         for j2 in masodik_lab:
                             if ido_perc(j2.indulas) >= ido_perc(j1.indulas) + 5:
+                                megj_lista = [m for m in [fordit_megjegyzest(j1.megjegyzes), fordit_megjegyzest(j2.megjegyzes)] if m != "-"]
                                 atszallasok.append({
                                     "1. Indulás": j1.indulas,
                                     "1. Járat": j1.jaratszam,
-                                    "Átszállás": kozos_megallo,
+                                    "Átszállás": helyi_nev(kozos_megallo, valasztott_nyelv),
                                     "2. Indulás": j2.indulas,
                                     "2. Járat": j2.jaratszam,
-                                    t["megjegyzes"]: f"{j1.megjegyzes} / {j2.megjegyzes}".strip(" /")
+                                    t["megjegyzes"]: " / ".join(megj_lista) if megj_lista else "-"
                                 })
 
                 if atszallasok:
@@ -642,7 +687,7 @@ elif valasztott_oldal == "tavolsagi":
                         sorok_b.append({
                             "Járat": b.jaratszam,
                             t["indulas_szoveg"]: normalizal_ido(b.indulas),
-                            t["megjegyzes"]: t["nincs_hetvegen"] if nincs_hetvegen else (b.megjegyzes if b.megjegyzes else "-")
+                            t["megjegyzes"]: t["nincs_hetvegen"] if nincs_hetvegen else fordit_megjegyzest(b.megjegyzes)
                         })
 
                     df_b = pd.DataFrame(sorok_b)
