@@ -10,7 +10,7 @@ import pandas as pd
 st.set_page_config(
     page_title="Utazás",
     page_icon="✈️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
@@ -22,6 +22,15 @@ st.markdown("""
         background-color: #12161c !important;
         color: #e2e8f0 !important;
         font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {
+        max-width: 92rem !important;
+        padding-left: 2.5rem !important;
+        padding-right: 2.5rem !important;
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
     }
 
     [data-testid="stSidebar"] {
@@ -273,7 +282,7 @@ szotar = {
         "alcim": "Covasna — Târgu Secuiesc — Sfântu Gheorghe",
         "menu_cim": "🧭 Navigare",
         "ful_helyi": "🚌 Curse locale Covasna",
-        "ful_tavolsagi": "🚆 Curse interurbane (Tg. Secuiesc / Sf. Gh.)",
+        "ful_tavolsagi": "🚆 Curse interurbane (Tg. Secuiesc / Sf. Gheorghe)",
         "ful_szentgyorgy": "🚌 Sf. Gheorghe (Multitrans)",
         "ful_taxi": "🚕 Contacte Taxi",
         "kereses_fejlec": "🔍 Căutare rute",
