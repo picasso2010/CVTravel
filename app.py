@@ -252,6 +252,8 @@ szotar = {
         "talalatok_szama": "Találatok száma",
         "szuro_honnan": "Szűrés / Keresés megállóra:",
         "szuro_hova": "Szűrés / Keresés célállomásra:",
+        "szuro_from_placeholder": "Pl. Központ...",
+        "szuro_to_placeholder": "Pl. Állomás...",
         "taxi_cim": "🚕 Helyi Taxi Elérhetőségek",
         "taxi_alcim": "Kattints a telefonszámra a közvetlen híváshoz",
         "taxi_varos_szuro": "Város kiválasztása:",
@@ -307,6 +309,8 @@ szotar = {
         "talalatok_szama": "Număr de rezultate",
         "szuro_honnan": "Filtrare stație plecare:",
         "szuro_hova": "Filtrare destinație:",
+        "szuro_from_placeholder": "Ex. Centru...",
+        "szuro_to_placeholder": "Ex. Gară...",
         "taxi_cim": "🚕 Contacte Taxi Locale",
         "taxi_alcim": "Apasă pe numărul de telefon pentru apelare directă",
         "taxi_varos_szuro": "Selectează orașul:",
@@ -362,6 +366,8 @@ szotar = {
         "talalatok_szama": "Number of results",
         "szuro_honnan": "Filter departure station:",
         "szuro_hova": "Filter destination:",
+        "szuro_from_placeholder": "E.g. Center...",
+        "szuro_to_placeholder": "E.g. Station...",
         "taxi_cim": "🚕 Local Taxi Contacts",
         "taxi_alcim": "Tap a phone number to call directly",
         "taxi_varos_szuro": "Select city:",
@@ -757,14 +763,22 @@ elif valasztott_oldal == "szentgyorgy":
 
     with col5:
         st.markdown(f"**{t['honnan']}**")
-        szuro_from = st.text_input(t["szuro_honnan"], key="szuro_from_input", placeholder="Pl. Központ...")
+        szuro_from = st.text_input(
+            t["szuro_honnan"],
+            key=f"szuro_from_input_{valasztott_nyelv}",
+            placeholder=t["szuro_from_placeholder"]
+        )
         szurt_allomasok = [stn for stn in all_stations if szuro_from.strip().lower() in stn.lower()] if szuro_from.strip() else all_stations
 
         szentgyorgy_honnan = st.selectbox("Válaszd ki a megállót", szurt_allomasok if szurt_allomasok else all_stations, key="select_honnan_st", label_visibility="collapsed")
 
     with col6:
         st.markdown(f"**{t['hova']}**")
-        szuro_to = st.text_input(t["szuro_hova"], key="szuro_to_input", placeholder="Pl. Állomás...")
+        szuro_to = st.text_input(
+            t["szuro_hova"],
+            key=f"szuro_to_input_{valasztott_nyelv}",
+            placeholder=t["szuro_to_placeholder"]
+        )
         szurt_celok = [dst for dst in all_destinations if szuro_to.strip().lower() in dst.lower()] if szuro_to.strip() else all_destinations
 
         szentgyorgy_hova = st.selectbox("Válaszd ki a célállomást", szurt_celok if szurt_celok else all_destinations, key="select_hova_st", label_visibility="collapsed")
