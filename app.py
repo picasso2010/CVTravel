@@ -211,7 +211,6 @@ szotar = {
         "apk_cim": "📱 Android alkalmazás offline móddal",
         "apk_leiras": "A sepsiszentgyörgyi helyi járatok offline is böngészhetők telefonon a CVTravel Android appal.",
         "apk_gomb": "⬇️ cvtravel.apk letöltése",
-        "frissites_gomb": "🔄 Adatok frissítése GitHubról",
         "frissites_sikeres": "A menetrend sikeresen frissítve!",
         "frissites_hiba": "Hiba történt a frissítés során.",
         "vonal": "Vonal",
@@ -263,7 +262,6 @@ szotar = {
         "apk_cim": "📱 Aplicație Android cu mod offline",
         "apk_leiras": "Poți consulta cursele locale din Sfântu Gheorghe și offline cu aplicația Android CVTravel.",
         "apk_gomb": "⬇️ Descarcă cvtravel.apk",
-        "frissites_gomb": "🔄 Actualizare date de pe GitHub",
         "frissites_sikeres": "Orarul a fost actualizat cu succes!",
         "frissites_hiba": "Eroare la actualizare.",
         "vonal": "Linie",
@@ -315,7 +313,6 @@ szotar = {
         "apk_cim": "📱 Android App with Offline Mode",
         "apk_leiras": "Browse Sfântu Gheorghe local transit offline on your phone using the CVTravel Android app.",
         "apk_gomb": "⬇️ Download cvtravel.apk",
-        "frissites_gomb": "🔄 Update Data from GitHub",
         "frissites_sikeres": "Schedule successfully updated!",
         "frissites_hiba": "Error updating data.",
         "vonal": "Line",
@@ -602,14 +599,6 @@ elif valasztott_oldal == "szentgyorgy":
         st.link_button(t["apk_gomb"], APK_URL, use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    if st.button(t["frissites_gomb"], key="btn_frissites_szentgyorgy"):
-        try:
-            cache_buster_url = f"{JSON_URL}?t={os.urandom(4).hex()}"
-            urllib.request.urlretrieve(cache_buster_url, JSON_FILENAME)
-            st.success(t["frissites_sikeres"])
-        except Exception:
-            st.error(t["frissites_hiba"])
 
     multitrans_adatok = adatok_betoltese_multitrans()
 
