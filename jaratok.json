@@ -348,5 +348,19 @@
         "hova": "Kovászna",
         "jaratszam": "Regio #11267",
         "indulas": "20:50"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kézdi",
+        "hova": "Kovászna",
+        "jaratszam": "Negru trans",
+        "indulas": "12:30"
+    },
+    {
+        "tipus": "Busz",
+        "honnan": "Kovászna",
+        "hova": "Kézdi",
+        "jaratszam": "Negru trans",
+        "indulas": "17:00"
     }
 ]
