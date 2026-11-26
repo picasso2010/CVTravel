@@ -740,4 +740,3 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(f"### {t['urlap_cim']}")
 st.sidebar.write(t["urlap_szoveg"])
 st.sidebar.link_button(t["urlap_gomb"], "https://forms.gle/kCtmR8P4gRP7acGG7")
-```[cite: 1]
