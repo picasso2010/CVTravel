@@ -7,6 +7,15 @@ from typing import List
 import streamlit as st
 import pandas as pd
 
+from megjelenes import (
+    alkalmaz_stilus,
+    formaz_narancs_soros_tabla,
+    megjelenit_apk_kartya,
+    megjelenit_frissitesi_datum,
+    megjelenit_narancs_jelmagyarazat,
+    megjelenit_taxi_kartya,
+)
+
 st.set_page_config(
     page_title="Utazás",
     page_icon="✈️",
@@ -14,203 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-
-    html, body, [data-testid="stAppViewContainer"] {
-        background-color: #12161c !important;
-        color: #e2e8f0 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }
-
-    .main .block-container,
-    [data-testid="stMainBlockContainer"] {
-        max-width: 92rem !important;
-        padding-left: 2.5rem !important;
-        padding-right: 2.5rem !important;
-        padding-top: 2rem !important;
-        padding-bottom: 3rem !important;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #181d24 !important;
-        border-right: 1px solid #2a3441 !important;
-    }
-
-    h1, h2, h3, h4, p, label, div, span {
-        color: #f1f5f9 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }
-
-    h1 {
-        font-weight: 600;
-        letter-spacing: -0.5px;
-        color: #38bdf8 !important;
-    }
-
-    hr {
-        border: none;
-        height: 1px;
-        background-color: #2a3441 !important;
-        margin: 25px 0;
-    }
-
-    .stButton > button, div[data-testid="stLinkButton"] > a {
-        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-        color: #ffffff !important;
-        font-weight: 500 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        border: 1px solid #38bdf8 !important;
-        border-radius: 10px !important;
-        width: 100% !important;
-        padding: 10px 20px !important;
-    }
-
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] > div {
-        background-color: #181f29 !important;
-        border: 1px solid #2d3b4e !important;
-        border-radius: 10px !important;
-        color: #f1f5f9 !important;
-    }
-
-    /* Oldalsáv navigáció (radio) gombosítása */
-    [data-testid="stSidebar"] div[role="radiogroup"] {
-        gap: 8px;
-    }
-
-    [data-testid="stSidebar"] div[role="radiogroup"] > label {
-        background-color: #181f29 !important;
-        border: 1px solid #2a3441 !important;
-        border-radius: 10px !important;
-        padding: 10px 12px !important;
-        margin-bottom: 0 !important;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-
-    [data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-        border-color: #38bdf8 !important;
-        background-color: #1e2736 !important;
-    }
-
-    [data-testid="stSidebar"] div[role="radiogroup"] > label[data-checked="true"],
-    [data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
-        background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(3, 105, 161, 0.25) 100%) !important;
-        border-color: #38bdf8 !important;
-    }
-
-    /* APK letöltő kártya */
-    .apk-box {
-        background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(24, 29, 36, 0.95) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.45);
-        border-radius: 12px;
-        padding: 16px 18px;
-        margin: 14px 0 18px 0;
-    }
-
-    .apk-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #38bdf8 !important;
-        margin-bottom: 4px;
-    }
-
-    .apk-desc {
-        font-size: 0.9rem;
-        color: #cbd5e1 !important;
-        margin-bottom: 0;
-    }
-
-    /* Taxi kártyák stílusa */
-    .taxi-card {
-        background-color: #181d24;
-        border: 1px solid #2a3441;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: border-color 0.2s ease, transform 0.15s ease;
-    }
-
-    .taxi-card:hover {
-        border-color: #38bdf8;
-    }
-
-    .taxi-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .taxi-name {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: #f8fafc !important;
-    }
-
-    .taxi-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 999px;
-        background-color: rgba(56, 189, 248, 0.15);
-        color: #38bdf8 !important;
-        border: 1px solid rgba(56, 189, 248, 0.35);
-    }
-
-    .taxi-phones {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .taxi-phone-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background-color: #12161c;
-        border: 1px solid #2d3b4e;
-        color: #38bdf8 !important;
-        text-decoration: none !important;
-        font-weight: 600;
-        font-size: 0.92rem;
-        padding: 7px 12px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
-
-    .taxi-phone-btn:hover {
-        background-color: #0284c7;
-        border-color: #38bdf8;
-        color: #ffffff !important;
-    }
-
-    /* Narancssárga figyelmeztető jelmagyarázat */
-    .orange-legend {
-        background-color: rgba(249, 115, 22, 0.14);
-        border: 1px solid rgba(251, 146, 60, 0.65);
-        border-left: 4px solid #f97316;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-top: 10px;
-        font-size: 0.9rem;
-        color: #fdba74 !important;
-    }
-
-    /* Diszkrét frissítési dátum a találatok alatt */
-    .updated-meta {
-        margin-top: 10px;
-        font-size: 0.78rem;
-        color: #64748b !important;
-        text-align: right;
-    }
-</style>
-""", unsafe_allow_html=True)
+alkalmaz_stilus("style.css")
 
 # Saját frissítési dátumok menetrendenként (igény szerint szabadon módosíthatók)
 MENETREND_DATUMOK = {
@@ -462,13 +275,9 @@ def nem_kozlekedik_hetvegen_es_unnepnapokon(honnan: str, hova: str, jaratszam: s
         return False
     return normalizal_ido(indulas) not in engedelyezett
 
-def megjelenit_frissitesi_datum(menetrend_kulcs: str):
+def kiir_frissitesi_datum(menetrend_kulcs: str):
     datum = MENETREND_DATUMOK.get(menetrend_kulcs, "")
-    if datum:
-        st.markdown(
-            f'<div class="updated-meta">{t["frissitve"]}: {datum}</div>',
-            unsafe_allow_html=True
-        )
+    megjelenit_frissitesi_datum(datum, t["frissitve"])
 
 # --- OLDALSÁV (SIDEBAR) ---
 if os.path.exists("Logo.jpeg"):
@@ -633,7 +442,7 @@ if valasztott_oldal == "helyi":
                         t["megjegyzes"]: fordit_megjegyzest(b.megjegyzes)
                     })
                 st.dataframe(pd.DataFrame(df_data), use_container_width=True, hide_index=True)
-                megjelenit_frissitesi_datum("helyi")
+                kiir_frissitesi_datum("helyi")
             else:
                 atszallasok = []
                 elso_lab = [j for j in rendszer.jaratok if j.tipus == "Helyi Busz" and j.honnan == helyi_honnan]
@@ -657,10 +466,10 @@ if valasztott_oldal == "helyi":
                     st.info(t["nincs_jarat"])
                     st.markdown(f"#### {t['atszallas']}")
                     st.dataframe(pd.DataFrame(atszallasok), use_container_width=True, hide_index=True)
-                    megjelenit_frissitesi_datum("helyi")
+                    kiir_frissitesi_datum("helyi")
                 else:
                     st.info(t["nincs_semmi"])
-                    megjelenit_frissitesi_datum("helyi")
+                    kiir_frissitesi_datum("helyi")
 
 # --- 2. NÉZET: TÁVOLSÁGI / INTERURBÁN JÁRATOK ---
 elif valasztott_oldal == "tavolsagi":
@@ -708,22 +517,11 @@ elif valasztott_oldal == "tavolsagi":
                         })
 
                     df_b = pd.DataFrame(sorok_b)
-
-                    def szinez_narancs(row):
-                        if row.name in narancs_indexek:
-                            return [
-                                "background-color: rgba(249, 115, 22, 0.28); color: #fed7aa; font-weight: 600;"
-                            ] * len(row)
-                        return [""] * len(row)
-
-                    styled_df_b = df_b.style.apply(szinez_narancs, axis=1)
+                    styled_df_b = formaz_narancs_soros_tabla(df_b, narancs_indexek)
                     st.dataframe(styled_df_b, use_container_width=True, hide_index=True)
 
                     if van_narancs_busz:
-                        st.markdown(
-                            f'<div class="orange-legend">{t["hetvegi_magyarazat"]}</div>',
-                            unsafe_allow_html=True
-                        )
+                        megjelenit_narancs_jelmagyarazat(t["hetvegi_magyarazat"])
                 else:
                     st.write(t["nincs_busz"])
 
@@ -734,22 +532,17 @@ elif valasztott_oldal == "tavolsagi":
                 else:
                     st.write(t["nincs_vonat"])
 
-                megjelenit_frissitesi_datum("tavolsagi")
+                kiir_frissitesi_datum("tavolsagi")
             else:
                 st.info(t["nincs_semmi"])
-                megjelenit_frissitesi_datum("tavolsagi")
+                kiir_frissitesi_datum("tavolsagi")
 
 # --- 3. NÉZET: SEPSISZENTGYÖRGY MULTITRANS ---
 elif valasztott_oldal == "szentgyorgy":
     st.subheader(t["szentgyorgy_cim"])
     st.caption(t["szentgyorgy_alcim"])
 
-    st.markdown(f"""
-    <div class="apk-box">
-        <div class="apk-title">{t['apk_cim']}</div>
-        <p class="apk-desc">{t['apk_leiras']}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    megjelenit_apk_kartya(t["apk_cim"], t["apk_leiras"])
 
     if os.path.exists(APK_FILENAME):
         with open(APK_FILENAME, "rb") as apk_file:
@@ -847,7 +640,7 @@ elif valasztott_oldal == "szentgyorgy":
                     } for j in talalatok
                 ])
                 st.dataframe(df_multi, use_container_width=True, hide_index=True)
-                megjelenit_frissitesi_datum("szentgyorgy")
+                kiir_frissitesi_datum("szentgyorgy")
             else:
                 st.info(t["nincs_ma_jarat"])
 
@@ -887,10 +680,10 @@ elif valasztott_oldal == "szentgyorgy":
 
                     st.markdown(f"#### {t['atszallas']}")
                     st.dataframe(pd.DataFrame(unique_atszallasok), use_container_width=True, hide_index=True)
-                    megjelenit_frissitesi_datum("szentgyorgy")
+                    kiir_frissitesi_datum("szentgyorgy")
                 else:
                     st.warning("Nem található átszállásos útvonal sem.")
-                    megjelenit_frissitesi_datum("szentgyorgy")
+                    kiir_frissitesi_datum("szentgyorgy")
 
 # --- 4. NÉZET: TAXI ELÉRHETŐSÉGEK ---
 elif valasztott_oldal == "taxi":
@@ -936,23 +729,15 @@ elif valasztott_oldal == "taxi":
         st.info(t["taxi_nincs_talalat"])
     else:
         for item in szurt_taxik:
-            varos_nev = t[item["varos_kulcs"]]
-            gombok_html = "".join(
-                f'<a class="taxi-phone-btn" href="tel:{tel.replace(" ", "")}">📞 {tel}</a>'
-                for tel in item["telefonok"]
+            megjelenit_taxi_kartya(
+                nev=item["nev"],
+                varos=t[item["varos_kulcs"]],
+                telefonok=item["telefonok"]
             )
-            st.markdown(f"""
-            <div class="taxi-card">
-                <div class="taxi-header">
-                    <span class="taxi-name">{item['nev']}</span>
-                    <span class="taxi-badge">{varos_nev}</span>
-                </div>
-                <div class="taxi-phones">{gombok_html}</div>
-            </div>
-            """, unsafe_allow_html=True)
 
 # --- OLDALSÁV LÁBLÉC ---
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"### {t['urlap_cim']}")
 st.sidebar.write(t["urlap_szoveg"])
 st.sidebar.link_button(t["urlap_gomb"], "https://forms.gle/kCtmR8P4gRP7acGG7")
+```[cite: 1]
